@@ -41,7 +41,10 @@ def bohr_model(element: str = 'He', number: int = 2):
             pad = 1.2
         radius = 2 * layer + pad
 
-        plt.plot(radius * np.cos(theta), radius * np.sin(theta), 'black', linestyle = ':')
+        if nb > nb_nucleus:
+            plt.plot(radius * np.cos(theta), radius * np.sin(theta), 'red', linestyle = ':', label="Couche non saturée")
+        else:
+            plt.plot(radius * np.cos(theta), radius * np.sin(theta), 'black', linestyle = ':')
         
         for i in range(nb):
             x = radius * np.cos(2 * np.pi * i / nb)
