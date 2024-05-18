@@ -7,6 +7,8 @@ def bohr_model(element: str = 'He', number: int = 2):
 
     plt.figure()
 
+    plt.title(f"Atom {element}, Z = {number}")
+
     # Plot the kern
     plt.scatter(0, 0, s = 2000)
     plt.text(0, 0, element, horizontalalignment='center', verticalalignment='center')
@@ -37,8 +39,8 @@ def bohr_model(element: str = 'He', number: int = 2):
         for i in range(layer):
             # Convert polar coordinates to rectangular coordinates
             for j in range(2):
-                x = radius * np.cos(2 * np.pi * i / (layer) + np.pi / 50 * (-1)**j)
-                y = radius * np.sin(2 * np.pi * i / (layer) + np.pi / 50 * (-1)**j)
+                x = radius * np.cos(2 * np.pi * i / (layer) + (np.pi / (20 * radius)) * (-1)**j)
+                y = radius * np.sin(2 * np.pi * i / (layer) + (np.pi / (20 * radius)) * (-1)**j)
                 coordinates.append((x, y))
         
         index = 0
@@ -55,5 +57,5 @@ def bohr_model(element: str = 'He', number: int = 2):
     plt.show()
 
 
-bohr_model('O', 8)
+bohr_model('C', 12)
 
