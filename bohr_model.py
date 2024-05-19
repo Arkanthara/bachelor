@@ -56,6 +56,7 @@ def bohr_model(element: str = 'He', number: int = 2):
                 is_saturated = False
                 last_layer = i
                 break
+        plt.text(0, radius, "sous-couche " + order[index], bbox=dict(boxstyle='square', facecolor='lightblue', edgecolor='none'), horizontalalignment='center', verticalalignment='center')
         index += 1
     
     for i in range(maxlayer - 1):
