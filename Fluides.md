@@ -26,12 +26,43 @@ Cependant, on utilise des méthodes tentant d'approximer ces équations afin de 
 
 # Équations d'Euler
 
-Les équations d'Euler sont basés sur la conservation de la masse, de l'énergie et de la quantité de mouvement.
+Les équations d'Euler sont un ensemble d'équations décrivant l'écoulement d'un fluide non visqueux.
+
+1. Équation de continuité
+
+    L'équation de continuité indique que la masse du fluide ne peut ni être créée, ni être détruite.
+
+    Elle se formule de la façon suivante:
+
+    $$\frac{\partial}{\partial t} \rho + \Delta (\rho v) = 0$$
+
+    avec:
+        
+        - $\rho$ la densité volumique du fluide. C'est une fonction qui dépend de la position à l'intérieur du volume et du temps $t$.
+        - $v$ le vecteur vitesse du fluide
+        - $\nabla (\rho v)$ la divergence du produit de la densité avec la vitesse.
+
+2. Équation de la quantité de mouvement
+    
+    L'équation de la quantité de mouvement découle de la conservation de la quantité de mouvement de Newton appliquée à un fluide.
+
+    Elle se formule ainsi:
+
+    $$\frac{\partial}{\partial t}v + \left(v + \nabla\right) v = - \frac{1}{\rho} \nabla p  + f $$
+
+    avec:
+
+        - $\left(v + \nabla\right) v$ représentant le changement de vitesse dû au mouvement du fluide
+        - $p$ la pression du fluide
+        - $f$ les forces externes s'appliquant sur le fluide (comme la force de gravité)
+
+3. Équation de l'énergie
+
+    L'équation de l'énergie s'applique si on suppose que le liquide est adiabatique, c'est à dire que la chaleur n'est pas prise en compte.
+
+    Voici la formule obtenue:
 
 
-## Équation de continuité
-
-Dans un système fermé (avec aucun échange avec l'extérieur), la masse du fluide ne peut ni être créée, ni être détruite.
 
 Soit un volume $V$ ($m^3$) et $\rho$ la densité volumique du fluide ($kg \cdot m^{-3}$).
 
