@@ -34,33 +34,54 @@ Les équations d'Euler sont un ensemble d'équations décrivant l'écoulement d'
 
     Elle se formule de la façon suivante:
 
-    $$\frac{\partial}{\partial t} \rho + \Delta (\rho v) = 0$$
+    $$\frac{\partial}{\partial t} \rho + \nabla (\rho V) = 0$$
 
     avec:
         
-        - $\rho$ la densité volumique du fluide. C'est une fonction qui dépend de la position à l'intérieur du volume et du temps $t$.
-        - $v$ le vecteur vitesse du fluide
-        - $\nabla (\rho v)$ la divergence du produit de la densité avec la vitesse.
+    - $\rho$ la masse volumique du fluide. C'est une fonction qui dépend de la position à l'intérieur du volume et du temps $t$.
+    - $V$ le vecteur vitesse du fluide. Il dépend également de la position à l'intérieur du volume et du temps $t$.
+    - $\frac{\partial}{\partial t} \rho$ nous donne la variation de la masse par unité de volume en fonction du temps
+    - $\nabla (\rho V)$ est le flux de masse. Il nous indique comment la masse se déplace et se redistribue dans le volume
+    
+    Dans cette équation, nous pouvons voir que la variation de la masse doit être égale au flux de masse du fluide. Cela signifie que la masse du fluide ne peut être ni créée, ni détruite, mais qu'elle se déplace dans le fluide.
 
 2. Équation de la quantité de mouvement
     
-    L'équation de la quantité de mouvement découle de la conservation de la quantité de mouvement de Newton appliquée à un fluide.
+    L'équation de la quantité de mouvement découle de la conservation de la quantité de mouvement de Newton appliquée à un fluide. La quantité de mouvement est représenté par la masse volumique multipliée par le vecteur vitesse.
 
-    Elle se formule ainsi:
+    Ainsi, on a l'équation suivante:
 
-    $$\frac{\partial}{\partial t}v + \left(v + \nabla\right) v = - \frac{1}{\rho} \nabla p  + f $$
+    $$\frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right) = - \nabla p  + \rho \cdot f $$
 
     avec:
 
-        - $\left(v + \nabla\right) v$ représentant le changement de vitesse dû au mouvement du fluide
-        - $p$ la pression du fluide
-        - $f$ les forces externes s'appliquant sur le fluide (comme la force de gravité)
+    - $p$ la pression du fluide
+    - $f$ les forces externes s'appliquant sur le fluide (comme la force de gravité)
+    - $\rho \cdot f$ nous donne l'ensemble des forces externes s'appliquant par unité de volume
+    - $\nabla \cdot \left(\rho V V^T \right)$ représente le changement de vitesse dû au mouvement du fluide
+    - $\frac{\partial}{\partial t}(\rho V)$ est la variation temporelle de la quantité de mouvement 
+
+    Dans cette équation, nous avons d'une part la variation temporelle de la quantité de mouvement plus la répartition de la quantité de mouvement dans le fluide, et de l'autre part la force résultant des variations de la pression plus les autres forces externes. On peut donc reconnaître la 2ème loi de Newtown disant que la quantité de mouvement est égal à la somme des forces.
 
 3. Équation de l'énergie
 
     L'équation de l'énergie s'applique si on suppose que le liquide est adiabatique, c'est à dire que la chaleur n'est pas prise en compte.
 
     Voici la formule obtenue:
+
+    $$\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V) = - \nabla \cdot (pV) + \rho g V$$
+
+    avec:
+
+    - $E$ l'énergie totale par unité de masse. On a $E = e + \frac{1}{2}|V|^2$
+    - $\frac{\partial}{\partial t} \rho E$ est la variation temporelle de l'énergie par unité de volume.
+    - $\nabla \cdot (\rho E V)$ nous donne le flux d'énergie à travers le fluide, donc comment l'énergie est transportée dans le fluide
+    - $- \nabla \cdot (pV)$ est le travail de la pression sur le fluide
+    - $\rho f V$ est le travail des forces extérieures sur le fluide
+
+    Dans cette équation, nous pouvons reconnaître d'une part la somme entre la variation et le flux d'énergie, et d'autre part la somme du travail des forces s'exerçant sur le fluide. Nous pouvons reconnaître le principe de conservation d'énergie: la somme du travail des forces est égal à l'énergie du fluide...
+
+### Poubelle ??? 
 
 
 
