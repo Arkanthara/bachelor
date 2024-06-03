@@ -1,192 +1,163 @@
 ---
-title: Visualisation en temps réel de simulations de fluides, FluidX3D VS Gvdb-voxel
+title: Comparaison entre méthodes de simulation de fluides
 author: Michel Jean Joseph Donnet
 date: \today
+header-includes:
+    - \usepackage[margin=2.5cm,a4paper,top=4cm]{geometry}
+    - \usepackage{fancyhdr}
+    - \usepackage{lastpage}
+    - \usepackage{hyperref}
+    - \usepackage{graphicx}
+    - \pagestyle{fancy}
+    - \fancyhf{}
+    - \lhead{\includegraphics[scale=0.5]{./logo.png}}
+    - \rhead{Bachelor \\ Michel Jean Joseph Donnet}
+    - \cfoot{} 
+    - \lfoot{}
+    - \rfoot{Page \thepage / \pageref{LastPage}}
 ---
-
 
 \newpage
 
 # Introduction
 
-La technologie a fait de nombreux progrès depuis les années 2000, principalement dans le domaine informatique.
-En effet, celle-ci suivait une loi exponentielle: la puissance de calcul doublait tout les 18 mois.
-etc....
+La terre est appelée "La planète bleue".
+En effet, près de 70% de la surface de la terre est recouverte d'eau, donnant ainsi une couleur bleue à la terre, comme les astronautes on pu constater lors de la mission Apollo de 1972.
+De plus, la terre possède l'eau dans tous ses états: solide, liquide et gazeux.
+
+L'eau est quelque chose qui a beaucoup intéressé les scientifiques de toutes les époques.
+Nous pouvons notamment citer parmi eux le légendaire Archimède qui, au cours du 3ème siècle avant Jésus-Christ, utilisa le principe de la poussée d'Archimède afin de déterminer si une couronne était en or selon la légende.
+
+Puis entre le 17ème et le 18ème siècle s'est démarqué le tristement célèbre Isaac Newton qui a donné la définition d'un fluide newtonien, qui est un fluide dont la viscosité reste constante indépendamment de la force s'exerçant sur celui-ci, donc un fluide ayant un comportement prévisible.
+
+Grâce aux études d'Isaac Newton, le fieffé coquin Leonhard Euler d'origine bâloise établit au cours du 18ème siècle des équations modélisant l'écoulement d'un fluide parfait adiabatique, c'est à dire que la viscosité et les effets de la chaleur ne sont pas pris en compte.
+
+Mais cela ne satisfit pas tous les scientifiques.
+En effet, au cours du 19ème siècle, frustrés par l'impossibilité de modéliser des fluides visqueux, le mathématicien Henri Navier et le physicien Georges Gabriel Stokes décidèrent d'ajouter la notion de viscosité aux équations d'Euler, étendant ainsi les équations sur les fluides newtonien.
+Leur travail fut reconnu et utilisé sous le nom d'équations de Navier-Stokes.
+Même de nos jours, personne n'a encore réussi à trouver une forme analytique à ces équations.
+
+Cependant, la technologie a fait de nombreux progrès surtout vers la fin du 20ème siècle avec l'apparition de l'ordinateur, ce qui permit aux scientifiques de tenter de résoudre les équations de Navier-Stokes grâce à des approximations et des méthodes numériques.
+Plusieurs méthodes ont donc été créées, notamment la méthode Smoothed Particle Hydrodynamics (SPH), la méthode Fluid-Implicit Particles (FLIP) et la méthode Lattice Boltzmann Method (LBM).
+Cependant, quelles sont les différences entre ces méthodes ?
+Y-a-t-il une méthode plus rapide qu'une autre ?
+Serait-il possible d'utiliser ces méthodes afin de faire du rendu en temps réel de haute qualité ?
 
 
 \newpage
-# Méthodologie
 
-## Physique des fluides
+# Méthodes de simulation de fluides
 
-Nous allons étudier le comportement dynamique des fluides afin de savoir comment modéliser et simuler cela au moyen de différentes méthodes.
+## Mécanique des fluides
 
-Les équations exactes qui régissent les fluides ne sont pas encore connues.
-Cependant, de nombreux scientifiques se sont penchés sur la question et ont donné des solutions approximant la solution exacte.
+Un fluide est composé de nombreuses particules.
+À la différence d'un solide, un fluide est complètement déformable.
 
+Il existe différent types de fluides, notamment:
 
-### Les atomes
+- les gaz: ce sont des fluides composés de particules isolées mouvant en toute liberté et pouvant entrer en collision.
+- les liquides: ce sont des fluides composés de particules liées entre elles par des liaisons faibles, comme les liaisons hydrogène.
+Les particules ne peuvent donc pas se mouvoir en toute liberté, et lorsqu'une particule bouge, elle exerce une influence sur les autres particules liées à elle.
 
-La matière est composé d'atomes, et chaque atome est composé d'un noyau possédant des neutrons et des protons (ayant une charge positive), et d'électrons (ayant une charge négative) gravitant autour du noyau.
+### Variables
 
-Le modèle actuellement utilisé pour l'étude des atomes est la mécanique quantique.
-Cependant, par soucis de simplicité, nous alons utiliser le modèle de Bohr, qui possède ses limites mais qui nous permettra d'avoir une idée plus précise de la nature d'un fluide.
+- $\rho$ la masse volumique du fluide. C'est une fonction qui dépend de la position à l'intérieur du volume et du temps $t$.
+- $V$ le vecteur vitesse du fluide. Il dépend également de la position à l'intérieur du volume et du temps $t$.
+- $p$ la pression du fluide
+- $f$ les forces externes s'appliquant sur le fluide (comme la force de gravité)
+- $E$ l'énergie totale par unité de masse. On a $E = e + \frac{1}{2}\lVert V \rVert^2$
+- $e$ l'énergie interne par unité de masse
+- $\Sigma$ la contrainte de viscosité du fluide
+- $q$ le flux de chaleur causé par conduction thermique
+- $q_{R}$ le flux de chaleur causé par rayonnement
 
-Selon le modèle de Bohr, les électrons gravitent en couches autour du noyau.
-Voici l'exemple de l'atome de Fer possédant 26 charges positives, obtenu grâce à la librairie matplotlib de python:
+### Équations d'Euler
 
-\center ![](./images/physique/Fe.png){width=85% #Fer caption="Illustration du modèle de Bohr en python"}
+Les équations d'Euler sont un ensemble d'équations décrivant l'écoulement d'un fluide non visqueux.
+Voici les 3 équations d'Euler:
 
-\raggedright
+#### Équation de continuité
 
-Sur ce shéma, nous pouvons voir plusieurs choses:
+L'équation de continuité se formule de la façon suivante:
 
-- Tout d'abord, les atomes gravitent en couches autour du noyau.
-- Les couches sont divisées en sous-couches.
-- Les couches et sous-couches ne sont pas remplies dans l'ordre.
-En effet, si nous regardons le shéma, nous pouvons constater que la couche qui n'est pas saturée n'est pas la couche $N$, mais c'est la dernière sous-couche de la couche $M$.
-- La dernière couche est appelée couche de valence.
+$$\frac{\partial}{\partial t} \rho + \nabla (\rho V) = 0$$ {#eq:econt}
 
-### Les couches
+avec:
+    
+- $\frac{\partial}{\partial t} \rho$ nous donne la variation de la masse par unité de volume en fonction du temps
+- $\nabla (\rho V)$ est le flux de masse. Il nous indique comment la masse se déplace et se redistribue dans le volume
 
-Les atomes sont donc composés de couches, qui sont elles-mêmes divisées en sous-couches.
+Dans cette équation, nous pouvons voir que la variation de la masse doit être égale au flux de masse du fluide. Cela signifie que la masse du fluide suit le principe de conservation de la matière
 
-Mais avant tout, qu'est ce qu'une couche selon le modèle de Bohr ?
+#### Équation de la quantité de mouvement
+    
+Voici l'équation de la quantité de mouvement:
 
-Selon le modèle quantique, une couche symbolise un niveau d'énergie quantifié. Les électrons se trouvant sur une couche possèdent donc le niveau d'énergie indiqué par la couche.
-Une couche éloignée du noyau (comme par exemple la couche $N$) représentera un niveau d'énergie plus grand qu'une couche proche du noyau (comme par exemple la couche $K$).
+$$\frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right) = - \nabla p  + \rho \cdot f $$ {#eq:emouv}
 
-Chaque couche $n$ possède un nombre maximum d'électrons $2n^2$. Ceux-ci sont répartis entre les sous-couches.
+avec:
 
-La couche de valence est la dernière couche.
+- $\rho \cdot f$ nous donne l'ensemble des forces externes s'appliquant par unité de volume
+- $\nabla \cdot \left(\rho V V^T \right)$ représente le changement de vitesse dû au mouvement du fluide
+- $\frac{\partial}{\partial t}(\rho V)$ est la variation temporelle de la quantité de mouvement 
 
-Les sous-couches peuvent accepter un nombre maximum d'électrons.
-La première sous-couche est communément appelée `s` et accepte au maximum 2 électrons.
-La $n$ ième sous-couche peut accepter au maximum $2 + 4n$ électrons.
+Dans cette équation, nous avons d'une part la variation temporelle de la quantité de mouvement plus la répartition de la quantité de mouvement dans le fluide, et de l'autre part la force résultant des variations de la pression plus les autres forces externes. On peut donc reconnaître la 2ème loi de Newton disant que la quantité de mouvement est égal à la somme des forces.
 
-### Les liaisons chimiques
+#### Équation de l'énergie
 
-Il existe plusieurs types de liaisons entre les atomes, les molécules et les ions.
-Parmi ces liaisons, nous allons nous intéresser plus particulièrement à:
+Soit un liquide adiabatique, c'est à dire pour lequel la chaleur n'est pas prise en compte.
 
-- liaison covalente
-- liaison hydrogène
+Voici l'équation de l'énergie:
 
-#### Liaison covalente
+$$\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V) = - \nabla \cdot (pV) + \rho g V$$ {#eq:eener}
 
-Voici deux atomes et leur représentation:
+avec:
 
-```plantuml
-@startuml
+- $\frac{\partial}{\partial t} \rho E$ est la variation temporelle de l'énergie par unité de volume.
+- $\nabla \cdot (\rho E V)$ nous donne le flux d'énergie à travers le fluide, donc comment l'énergie est transportée dans le fluide
+- $- \nabla \cdot (pV)$ est le travail de la pression sur le fluide
+- $\rho f V$ est le travail des forces extérieures sur le fluide
 
-<style>
-note {
-    linecolor transparent
-    backgroundcolor white
-}
-</style>
+Dans cette équation, il y a d'une part la somme entre la variation et le flux d'énergie, et d'autre part la somme du travail des forces s'exerçant sur le fluide. Cela découle du principe de conservation d'énergie: la somme du travail des forces est égale à l'énergie du fluide...
 
-note as O
-    <img:/home/fitzwilliam/Documents/bachelor/images/physique/O.png>
-end note
+### Équations de Navier-Stokes
 
-note as H
-    <img:/home/fitzwilliam/Documents/bachelor/images/physique/H.png>
-end note
+Les équations de Navier-Stokes sont basées sur les équations d'Euler.
+Elles y ajoutent la notion de viscosité, qui représente les forces de friction interne au fluide.
+Elles permettent donc de modéliser des fluides réels visqueux à la différence des équations d'Euler qui modélisent les fluides parfaits.
 
-O -[hidden]r-> H
+Voici les équations de Navier-Stokes:
 
-@enduml
-```
+#### Équation de continuité
 
-Nous pouvons constater que ces deux atomes ont leur couche de valence non saturée.
+Celle-ci ne diffère pas de l'équation de continuité d'Euler (@eq:econt).
+Ceci semble normal, car la masse du fluide, même dans un fluide visqueux, ne peut toujours pas être créée ni détruite, et suit toujours le principe de conservation de la matière.
 
-Selon la règle de l'octet (s'appliquant uniquement aux atomes ayant une deuxième couche, et éventuellement les deux premières sous-couches de la troisième couche), les atomes vont essayer d'avoir leur couche de valence saturée pour atteindre un état stable.
+#### Équation de la quantité de mouvement
 
-Dans notre cas, la règle de l'octet peut s'appliquer à l'atome d'oxygène, car celui-ci possède 2 couches, mais pas à l'atome d'hydrogène.
+Voici l'équation de la quantité de mouvement de Navier-Stokes:
 
-Cependant, l'atome d'hydrogène va également essayer de saturer sa couche de valence pour arriver dans un état stable.
+$$
+\frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right)
+= - \nabla p  + \nabla \Sigma +  \rho \cdot f
+$$ {#eq:nmouv}
 
-Chaque atome d'hydrogène va donc chercher un électron suplémentaire, et l'atome d'oxygène va chercher 2 électrons suplémentaires (en effet sa couche de valence ne contient que 4 électrons alors que pour être saturée, celle-ci doit en contenir 6...)
+- $\nabla \Sigma$ est la force exerçée par la viscosité du fluide
 
-La solution à ce problème est la liaison covalente: chaque atome d'hydrogène va partager son électron avec l'atome d'oxygène, et l'atome d'oxygène va partager un électron avec chacun des 2 atomes d'hydrogène.
-Ainsi, grâce à ce partage d'électrons, chacun des atomes a sa couche de valence saturé et est donc dans un état stable ! Les électrons partagés entre 2 atomes gravitent autour des 2 atomes, les liant entre eux par une liaison covalente.
-Ces liaisons covalentes créent une nouvelle molécule, la molécule de l'eau $H_{2}O$. En effet, comme chacun des atomes a atteint un état stable par le partage d'électrons, aucun ne voudra partir pour se retrouver à nouveau dans un état pas stable... (Pour changer la molécule, il faut faire des réactions chimiques)
+Dans cette équation, la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation (@eq:emouv) d'Euler.
+Ainsi, l'équation (@eq:nmouv) suit toujours la 2ème loi de Newton
 
-#### Liaison hydrogène
+#### Équation de l'énergie
 
-Nous allons reprendre notre molécule d'eau et voir comment les liaisons hydrogène s'appliquent pour notre molécule.
+Voici l'équation de l'énergie de Navier-Stokes:
 
-La molécule est donc composée de plusieurs atomes liés entre eux par des liaisons covalentes.
-Cependant, nous avons également vu que les atomes sont composés de charges positives (dans le noyau), et de charges négatives (les électrons gravitant autour du noyau).
-L'électronégativité d'un atome est donc une grandeur relative qui traduit l'aptitude de cet atome à attirer vers lui le doublon d'électron liant obtenu par la liaison covalente.
-Si l'électronégativité des deux atomes est différente, la liaison entre les deux atomes est polarisée: un dipôle électrique est créé
-(un dipôle électrique est composé d'une charge positive et d'une charge négative séparé par une distance fixée).
-Une molécule peut avoir plusieurs liaisons covalentes polarisées.
+$$
+\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V)
+= - \nabla \cdot (pV) + \nabla \cdot \Sigma V + \rho f V + \nabla \cdot q + \nabla \cdot q_{R}
+$$ {#eq:nener}
 
-Dans le cas de l'oxygène et l'hydrogène, l'oxygène est très électronégatif, plus que l'hydrogène. Donc les liaisons covalentes seront polarisées.
+- $\nabla \cdot \Sigma V$ est le travail de la viscosité du fluide
+- $\nabla \cdot q + \nabla \cdot q_{R}$ est le travail de la chaleur sur le fluide
 
-Voici l'exemple de la polarisation de la molécule d'eau $H_{2}O$:
-
-![Image créée par Riccardo Rovinetti](./images/physique/dipole.png)
-
-Dans le graphique, nous pouvons constater 2 flèches. Ces 2 flèches sont le moment dipolaire de chacune des liaisons covalentes polaires, orienté du pôle - vers le pôle +.
-Les nombres indiquent l'électronégativité de chacun des atomes.
-
-Une liaison hydrogène se produit lorsqu'un atome d'hydrogène lié à un atome très électronégatif interagit avec un autre atome également très électronégatif et porteur d'un doublet d'électrons non liant.
-C'est une force intermoléculaire moins forte que la liaison covalente.
-
-Dans le cas des molécules d'eau, l'oxygène est très électronégatif.
-De plus, l'oxygène partage 2 électrons, donc possède sur sa 2ème couche 2 électrons non liant.
-Et l'oxygène est lié à l'hydrogène par des liaisons covalentes polarisées.
-
-Donc lorsqu'on met plusieurs molécules d'eau ensemble, des liaisons hydrogènes se produisent entre les molécules d'eau.
-
-Les molécules d'eau sont donc maintenues ensembles par une force intermoléculaire.
-Si une molécule d'eau est en mouvement, elle aura une influence sur les autres molécules d'eau avoisinant à cause de ces liaisons hydrogènes.
-
-## Méthode SPH
-
-C'est à cet instant qu'intervient la méthode de simulation de fluides SPH (Smoothed Particle Hydrodynamics).
-
-Cette méthode représente un fluide comme un ensemble de particules.
-Chaque particule possède une influence sur les autres particules.
-
-Cette méthode est basée sur une méthode lagrangienne sans maillage.
-Différents paramètres physiques sont ajustables.
-
-Nous pouvons constater que cette méthode est assez proche de la réalité, étant donné les considérations précédentes.
-
-### La règle de l'octet et la molécule $H_{2}O$
-
-La règle de l'octet s'applique uniquement aux atomes appartenant au groupe principal (les atomes du groupe principal possèdent au plus 3 couches avec uniquement la sous-couche s et p de la couche 3), qui possèdent un numéro atomique supérieur ou égal à 4.
-
-Cette règle stipule que les électrons des sous-couches `s` et `p` (`p` est le nom de la $2^e$ sous-couche) vont essayer de se combiner pour arriver à 8 électrons. Cela leur permet d'avoir une configuration stable.
-
-Prenons l'exemple de l'atome d'oxygène (O, Z = 8).
-Nous pouvons voir sur le shéma que celui-ci ne possède que 4 électrons dans la couche 2p.
-Comme l'oxygène appartient au groupe principal et possède un numéro atomique supérieur ou égal à 4, la règle de l'octet peut s'appliquer.
-
-La combinaison de la couche 2s et 2p nous donne seulement 6 électrons.
-L'atome d'oxygène va donc tenter de récupérer 2 électrons pour arriver à un état stable.
-
-L'atome d'hydrogène (H, Z = 1) ne possède qu'une seule charge positive.
-Pour être dans un état stable, celui-ci va essayer de saturer sa couche de valence, donc d'acquérir un électron.
-
-Ainsi, l'atome d'oxygène va essayer de récupérer 2 électrons et l'atome d'hydrogène va essayer de récupérer 1 électron.
-L'atome d'hydrogène va donc partager son électron avec l'atome d'oxygène, qui va faire la même chose: ainsi, l'atome d'oxygène possède un de ses électrons gravitant autour de l'hydrogène et de lui-même (comme cela l'hydrogène est dans un état stable), et l'électron de l'atome d'hydrogène gravite également autour de l'oxygène.
-Ainsi, l'hydrogène, en partageant son électron, est dans un état stable.
-S'il y a un deuxième atome d'hydrogène, les deux atomes d'hydrogènes sont dans un état stable car l'atome d'oxygène partage avec eux des électrons, et l'atome d'oxygène est également dans un état stable car chaque atome d'hydrogène partage avec lui un électron.
-
-Comme chacun des atomes possède sa couche de valence saturée, il est heureux et ne voit aucune raison de partir pour se retrouver dans un état non stable. Les atomes restent donc groupés, liés entre eux par les partages d'électrons.
-
-Cela forme la molécule d'eau $H_{2}O$.
-
-### Liaisons chimiques
-
-Il existe plusieurs liaisons entre les molécules.
-
-- Les liaisons fortes: elles sont responsables de la matière solide.
-- Les liaisons faibles: elles sont responsables de la matière liquide.
-
-### Méthode SPH (Smooth Particle Hydro
+L'équation de l'énergie de Navier-Stokes (@eq:nener) ajoute à l'équation d'Euler (@eq:eener) le travail de la viscosité et de la chaleur sur le fluide.
+Ainsi, les fluides non adiabatiques sont également pris en compte par cette équation.
