@@ -2,22 +2,31 @@
 title: Comparaison entre méthodes de simulation de fluides
 author: Michel Jean Joseph Donnet
 date: \today
+output:
+    pdf_document:
+        toc: true
+        number_sections: true
+        latex-engine: xelatex
+
 header-includes:
-    - \usepackage[margin=2.5cm,a4paper,top=4cm]{geometry}
+    - \usepackage[margin=2.5cm,a4paper]{geometry}
     - \usepackage{fancyhdr}
     - \usepackage{lastpage}
     - \usepackage{hyperref}
     - \usepackage{graphicx}
     - \pagestyle{fancy}
     - \fancyhf{}
-    - \lhead{\includegraphics[scale=0.5]{./logo.png}}
-    - \rhead{Bachelor \\ Michel Jean Joseph Donnet}
-    - \cfoot{} 
-    - \lfoot{}
+    - \lhead{\nouppercase{\leftmark}}
+    - \rhead{Université de Genève}
+    - \lfoot{\put(0, -30) {\includegraphics[width=4cm]{./unige.jpg}}}
     - \rfoot{Page \thepage / \pageref{LastPage}}
+    - \fancypagestyle{plain}{
+        \fancyhf{}
+        \renewcommand{\headrulewidth}{0pt}
+        \lfoot{\put(0, -30) {\includegraphics[width=4cm]{./unige.jpg}}}
+        \rfoot{Page \thepage / \pageref{LastPage}}
+        }
 ---
-
-\newpage
 
 # Introduction
 
@@ -43,8 +52,6 @@ Cependant, quelles sont les différences entre ces méthodes ?
 Y-a-t-il une méthode plus rapide qu'une autre ?
 Serait-il possible d'utiliser ces méthodes afin de faire du rendu en temps réel de haute qualité ?
 
-
-\newpage
 
 # Méthodes de simulation de fluides
 
@@ -130,7 +137,7 @@ Voici les équations de Navier-Stokes:
 
 #### Équation de continuité
 
-Celle-ci ne diffère pas de l'équation de continuité d'Euler (@eq:econt).
+Celle-ci ne diffère pas de l'équation de continuité d'Euler [-@eq:econt].
 Ceci semble normal, car la masse du fluide, même dans un fluide visqueux, ne peut toujours pas être créée ni détruite, et suit toujours le principe de conservation de la matière.
 
 #### Équation de la quantité de mouvement
@@ -144,8 +151,8 @@ $$ {#eq:nmouv}
 
 - $\nabla \Sigma$ est la force exerçée par la viscosité du fluide
 
-Dans cette équation, la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation (@eq:emouv) d'Euler.
-Ainsi, l'équation (@eq:nmouv) suit toujours la 2ème loi de Newton
+Dans cette équation, la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation [-@eq:emouv] d'Euler.
+Ainsi, l'équation [-@eq:nmouv] suit toujours la 2ème loi de Newton
 
 #### Équation de l'énergie
 
@@ -159,5 +166,5 @@ $$ {#eq:nener}
 - $\nabla \cdot \Sigma V$ est le travail de la viscosité du fluide
 - $\nabla \cdot q + \nabla \cdot q_{R}$ est le travail de la chaleur sur le fluide
 
-L'équation de l'énergie de Navier-Stokes (@eq:nener) ajoute à l'équation d'Euler (@eq:eener) le travail de la viscosité et de la chaleur sur le fluide.
+L'équation de l'énergie de Navier-Stokes [-@eq:nener] ajoute à l'équation d'Euler [-@eq:eener] le travail de la viscosité et de la chaleur sur le fluide.
 Ainsi, les fluides non adiabatiques sont également pris en compte par cette équation.
