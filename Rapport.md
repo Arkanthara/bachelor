@@ -168,3 +168,21 @@ $$ {#eq:nener}
 
 L'équation de l'énergie de Navier-Stokes [-@eq:nener] ajoute à l'équation d'Euler [-@eq:eener] le travail de la viscosité et de la chaleur sur le fluide.
 Ainsi, les fluides non adiabatiques sont également pris en compte par cette équation.
+
+Dans la plupart des cas, l'équation de l'énergie n'est pas prise en compte lors de la simulation de fluides notamment à cause de la complexité du calcul.
+
+## Méthode SPH
+
+La méthode Smoothed Particle Hydrodynamics (SPH) a été inventée en 1977 par trois scientifiques Gingold, Lucy et Monaghan afin de simuler des phénomènes astrophysiques, tel que la formation et l'évolution d'une étoile ou d'une galaxie.
+Les équations de la mécanique des fluides peuvent effectivement servir à décrire ce genre de phénomènes astrophysiques car il s'agit de gaz ou d'une multitude de corps évoluant d'une manière similaire à un liquide ou un gaz.
+
+La méthode SPH s'est ensuite développée dans le domaine de la mécanique des fluides ou elle a servit notamment à modéliser non seulement des fluides compressibles et incompressibles, mais également des phénomènes thermiques et magnétiques.
+
+Puis vers 1990, la méthode SPH a été étendue à la mécanique des structures afin de simuler par exemple des impact à forte vitesse ou des déchirures de matériaux grâce notamment au travail de Libersky et Petschek (citation ici).
+
+De nos jour, la méthode SPH est encore utilisée dans la mécanique des fluides, mais également pour simuler des impacts haute vitesse, des fragmentations ou encore des explosions, si bien que le terme Hydrodynamics n'est plus adapté.
+Cependant, pour des raisons historiques, on conserve le terme Hydrodynamics.
+
+### Caractéristiques
+
+
