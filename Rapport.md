@@ -2,12 +2,16 @@
 title: Comparaison entre méthodes de simulation de fluides
 author: Michel Jean Joseph Donnet
 date: \today
-output:
-    pdf_document:
-        toc: true
-        number_sections: true
-        latex-engine: xelatex
-
+format:
+    pdf:
+        cite-method: biblatex
+output-file: Rapport.pdf
+toc: true
+lang: fr-FR
+documentclass: report
+top-level-division: chapter
+numbersections: true
+bibliography: references.bib
 header-includes:
     - \usepackage[margin=2.5cm,a4paper]{geometry}
     - \usepackage{fancyhdr}
@@ -87,7 +91,7 @@ Voici les 3 équations d'Euler:
 
 L'équation de continuité se formule de la façon suivante:
 
-$$\frac{\partial}{\partial t} \rho + \nabla (\rho V) = 0$$ {#eq:econt}
+$$\frac{\partial}{\partial t} \rho + \nabla (\rho V) = 0$$ {#eq-econt}
 
 avec:
     
@@ -100,7 +104,7 @@ Dans cette équation, nous pouvons voir que la variation de la masse doit être 
     
 Voici l'équation de la quantité de mouvement:
 
-$$\frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right) = - \nabla p  + \rho \cdot f $$ {#eq:emouv}
+$$\frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right) = - \nabla p  + \rho \cdot f $$ {#eq-emouv}
 
 avec:
 
@@ -116,7 +120,7 @@ Soit un liquide adiabatique, c'est à dire pour lequel la chaleur n'est pas pris
 
 Voici l'équation de l'énergie:
 
-$$\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V) = - \nabla \cdot (pV) + \rho g V$$ {#eq:eener}
+$$\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V) = - \nabla \cdot (pV) + \rho g V$$ {#eq-eener}
 
 avec:
 
@@ -137,7 +141,7 @@ Voici les équations de Navier-Stokes:
 
 #### Équation de continuité
 
-Celle-ci ne diffère pas de l'équation de continuité d'Euler [-@eq:econt].
+Celle-ci ne diffère pas de l'équation de continuité d'Euler [-@eq-econt].
 Ceci semble normal, car la masse du fluide, même dans un fluide visqueux, ne peut toujours pas être créée ni détruite, et suit toujours le principe de conservation de la matière.
 
 #### Équation de la quantité de mouvement
@@ -147,12 +151,12 @@ Voici l'équation de la quantité de mouvement de Navier-Stokes:
 $$
 \frac{\partial}{\partial t}(\rho V) + \nabla \cdot \left(\rho V V^T \right)
 = - \nabla p  + \nabla \Sigma +  \rho \cdot f
-$$ {#eq:nmouv}
+$$ {#eq-nmouv}
 
 - $\nabla \Sigma$ est la force exerçée par la viscosité du fluide
 
-Dans cette équation, la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation [-@eq:emouv] d'Euler.
-Ainsi, l'équation [-@eq:nmouv] suit toujours la 2ème loi de Newton
+Dans cette équation, la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation [-@eq-emouv] d'Euler.
+Ainsi, l'équation [-@eq-nmouv] suit toujours la 2ème loi de Newton
 
 #### Équation de l'énergie
 
@@ -161,12 +165,12 @@ Voici l'équation de l'énergie de Navier-Stokes:
 $$
 \frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E V)
 = - \nabla \cdot (pV) + \nabla \cdot \Sigma V + \rho f V + \nabla \cdot q + \nabla \cdot q_{R}
-$$ {#eq:nener}
+$$ {#eq-nener}
 
 - $\nabla \cdot \Sigma V$ est le travail de la viscosité du fluide
 - $\nabla \cdot q + \nabla \cdot q_{R}$ est le travail de la chaleur sur le fluide
 
-L'équation de l'énergie de Navier-Stokes [-@eq:nener] ajoute à l'équation d'Euler [-@eq:eener] le travail de la viscosité et de la chaleur sur le fluide.
+L'équation de l'énergie de Navier-Stokes [-@eq-nener] ajoute à l'équation d'Euler [-@eq-eener] le travail de la viscosité et de la chaleur sur le fluide.
 Ainsi, les fluides non adiabatiques sont également pris en compte par cette équation.
 
 Dans la plupart des cas, l'équation de l'énergie n'est pas prise en compte lors de la simulation de fluides notamment à cause de la complexité du calcul.
@@ -185,4 +189,4 @@ Cependant, pour des raisons historiques, on conserve le terme Hydrodynamics.
 
 ### Caractéristiques
 
-
+test de citation: @Fabien 
