@@ -302,4 +302,152 @@ Mais des travaux ont été faits afin de palier à ce problème, tel que @Adam e
 
 ## Méthode LBM
 
-La méthode Lattice Boltzman est une méthodes
+La méthode Lattice Boltzman (LBM) est issue d'une autre méthode appelée lattice gaz automata (LGA)
+
+### Principes de base
+
+La méthode LBM représente le fluide comme un ensemble de particules qui elles-mêmes représentent un ensemble de molécules.
+Elle est utilisée pour étudier le comportement de mésoscale fluides. (De l'ordre de $10^{-9}$ à $10^{-6}$ mètres)
+
+Comme on représente non pas chaque molécule mais des groupes de molécule, la physique utilisée est probabilistique.
+
+Les équations alors utilisées ne sont pas les équations de Navier Stokes, mais les équations de Boltzmann.
+
+La méthode LBM utilise les équations de Boltzmann, mais n'est pas un solveur pour ces équations...
+
+On peut représenter l'espace comme un ensemble de molécules dans une grille, et on est intéressé de savoir comment les molécules vont entrer en collision...
+
+On veut connaître où vont les molécules en moyenne et quelle est leur distribution dans l'espace de vitesse
+
+Dans les équations de Navier-Stokes, on a le temps et la position comme variable, mais dans la méthode LBM, on prend également la vélocité des molécules comme une variable.
+
+On définit alors $\xi$ comme dans l'équation [-@eq-xi] où $\xi$ est la vélocité moléculaire qui donne le changement de position de la molécule en fonction du temps
+
+On veut savoir combien de molécules dans une cellule se déplacent dans une direction à un temps donné.
+
+his enable continuum level descriptions on a kinetic level where molecules are behaving kinetically
+Cela permet des descriptions au niveau du continuum à un niveau cinétique où les molécules se comportent de manière cinétique.
+Cela permet d'avoir un 
+
+$$
+\xi = \frac{dx}{dt}
+$$ {#eq-xi}
+
+$$
+f(\xi, x, t)
+$$
+Donne le nombre de molécules que l'on a à un point donné à un temps donné qui bougent dans une direction donnée avec une vitesse donnée.
+
+Cette distribution $f$ est normalisée de telle façon que si on intègre sur la vitesse et la position, on obtient la masse du système:
+
+$$
+\int d^3 \xi \int d^3 x f(\xi, x, t) = M(t)
+$$
+
+Et si on intègre sur seulement la vélocité, on obtient la densité car cela correspond à seulement prendre toutes les molécules, sans tenir compte de leur vitesse.
+
+$$
+\int d^3 \xi f(\xi, x, t) = \rho(x, t)
+$$
+
+Si on calcule le premier moment de la distribution, donc si on multiplie par la vitesse des molécules et qu'ensuite on intègre en fonction de la vitesse, on obtient le moment de densité du système pour une cellule donnée.
+
+$$
+\int d^3 \xi \xi \cdot f(\xi, x, t) = \rho u(x, t)
+$$
+
+On peut faire la même chose pour obtenir la pression, mais c'est plus compliqué.
+
+On est intéressé par la densité et le moment de densité car ces variables apparraissent dans les équations de Navier-Stokes.
+
+$f$ contient toutes les propriétés locales du fluide qui nous intéressent.
+Si on va au niveau des équations de Navier Stokes, on est uniquement intéressé par obtenir les moments de $f$, ce qui signifie le moment d'ordre 0 qui est la densité et le moment d'ordre 1 qui est le moment de densité
+
+On veut trouver une équation qui décrit comment $f$ évolue dans le temps
+
+On peut utiliser la règle de chainage et obtenir:
+
+$$
+\begin{aligned}
+\frac{df(\xi, x, t)}{dt}
+&= (\frac{\partial}{\partial t} + \frac{dx}{dt}\codt \frac{\partial}{\partial x} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
+&= (\frac{\partial}{\partial t} + \xi \codt \frac{\partial}{\partial x} + \frac{f}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
+&= \Omega (f)
+\end{aligned}
+$$
+
+terme 1: dérivée parielle en fonction du temps
+terme 2: gradient spacial
+terme 3: le changement de vélocité est l'accélération et l'accélération des particules est relié à la force agissant sur les particules
+
+mais dans la réalité, les particules entrent en collision, ce qui va faire que la fonction de distribution va changer non seulement à cause des termes présent dans sa dérivée, mais également parce que les particules entrent en collision, et toutes ces contributions qui ne sont pas capturées par la dérivée sont collectées par la partie droite qui donne la déviation de 0 et qui est appelée l'opérateur de collision $\Oméga$.
+
+On peut retrouver les équations de Navier Stokes à partir des équations de Boltzmann avec certaunes conditions et limites.
+
+Navier Stokes vs boltzmann: Navier Stokes plus simple car possède seulement les données en fonction du temps et de la position: la vitesse $\xi$ n'est pas prise en compte...
+
+Les équations de Boltzman n'ont pas de détails microscopiques
+
+La fonction de distribution va être déformée par l'opérateur de collision.
+On ne prend pas en compte chaque collision, sinon le calcul devient monstrueux, mais on peut estimer que au bout d'un moment, on arrive à un équilibre. On appelle $f^{eq}$ la distribution équilibrée.
+On estime alors que l'on peut modéliser la relaxation vers $f^{eq}$ à partir d'un état non équilibré $f$ par un modèle Bhatnagar-Gross-Krook (BGK):
+
+$$
+\Omega (f) =- \frac{1}{\tau} (f - f^{eq})
+$$
+avec $\tau$ le temps de relaxation
+
+C'est une grosse simplification, mais cela marche tout de même avec les équations de Boltzmann dans une simulation numérique, et cette simplification est suffisante pour retrouver le comportement des équations de Navier-Stokes.
+
+On définit
+- $\xi$ la vélocité absolue de nos molécules
+- $u = \int d^3 \xi \xi \cdot \frac{f(\xi, x, t)}{\rho}$ est la vélocité moyenne du fluide dans la cellule. C'est la vélocité moyenne des molécules dans une surface donnée. C'est la vitesse macroscopique du liquide à un point donné
+- $v = \xi - u$ comme la vitesse du centre de masse de ces molécules. Il donne comment les molécules sont distribuées individuellement dans l'espace des vitesses autour de la vélocité u.
+
+On utilise communément $u$ et $v$ et non pas $\xi$.
+
+Les collisions doivent conserver la masse (densité), le moment (vélocité) (3ème loi de newton) et l'énergie (température) (collisions sont élastiques...)
+La distribution d'équilibre $f^{eq}$ doit dépendre seulement de la densité $\rho$, la vitesse du centre de masse $v$ et de la température $T$. et elle doit être isotropique.
+elle doit être isotrope, peu importe la direction de l'espace dans lequel nous regardons, elle ne peut donc dépendre que de la magnitude de v
+On arrive après des dérivations à la fonction de distribution équilibrée [-@eq-eqdist]
+
+$$
+\begin{aligned}
+f^{eq} (v, x, t) &= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|v|^2}{2RT}} \\
+&= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|\xi - u|^2}{2RT}} \\
+\end{aligned}
+$${#eq-eqdist}
+
+Qu'est ce qu'on a appris ?
+
+- séparation dans le temps et dans l'espace
+- remplacement des molécules par une fonction de distribution $f(v, x, t)$ (mesoscopic picture)
+- Boltzmann équation: équation gouvernant la distribution $f$
+- On a besoin de l'opérateur de collision $\Omega (f)$ qui est très complexe dans sa forme matématique
+- On utilise un opérateur de collision simplifié grâce à BGK qui nous donne une distribution équilibrée $f^{eq}$
+- On peut calculer la densité $\rho$, la vélocité $u$ et la pression $p$ macroscopique du fluide grâce aux moments de $f(v, x, t)$
+- On peut retrouver les équations de Navier Stokes
+
+we can use a navier stokes server that is not directly distretizing the navier-stokes equations but that is rooted in boltzmann theory
+Nous pouvons utiliser un serveur de Navier-Stokes qui ne distord pas directement les équations de Navier-Stokes mais qui est enraciné dans la théorie de Boltzmann.
+
+L'idée principale est d'utiliser les équations de Boltzmann pour résoudre les équations de Navier-Stokes, ce qui est possible grâce à Chapman-Enskog.
+
+Nous allons simuler l'évolution de la fonction de densité $f$ plutôt que l'évolution de la vitesse et de la pression, ce qui nous intéresse normalement dans un fluide microscopique...
+
+Pourquoi utiliser la méthode Boltzmann ?? En effet, il y a plus de variables, cela a l'air plus difficile...
+On utilise cette méthode car elle s'avère plus pratique qu'une discrétisation des équations de Navier-Stokes.
+
+On a donc à
+- Discrétiser la fonction de distribution $f$
+- Qu'est ce que la lattice boltzman equation (LBE)
+- comment sont liés l'équation de Navier-stokes et l'équation de boltzmann ?
+
+Espace: 
+$x \rightarrow \Delta x$ (lattice). On prend l'espace et on le décompose en "small lattice nodes" et on résoud l'équation pour chaque noeud du treillis (ou de la lattice...)
+
+Temps:
+$t \rightarrow \Delta t$ qui est constant... Donc on résoud lattice boltzmann à un temps t, puis on avance de $\Delta t$.... On peut également faire le temps dynamiquement...
+
+Vélocité:
+$f(v, x, t) \rightarrow f_{i}(x, t)$ On discrétise $f$ en terme d'espace de vélocité en autorisant seulement un très petit nombre de directions possibles de direction et de vitesse. (Notation D2Q9: 9 vélocité possibles en 2d... D3Q19: 19 vélocité possibles en 3d)
