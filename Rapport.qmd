@@ -370,8 +370,8 @@ On peut utiliser la règle de chainage et obtenir:
 $$
 \begin{aligned}
 \frac{df(\xi, x, t)}{dt}
-&= (\frac{\partial}{\partial t} + \frac{dx}{dt}\codt \frac{\partial}{\partial x} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
-&= (\frac{\partial}{\partial t} + \xi \codt \frac{\partial}{\partial x} + \frac{f}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
+&= (\frac{\partial}{\partial t} + \frac{dx}{dt}\cdot \frac{\partial}{\partial x} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
+&= (\frac{\partial}{\partial t} + \xi \cdot \frac{\partial}{\partial x} + \frac{f}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
 &= \Omega (f)
 \end{aligned}
 $$
@@ -380,7 +380,7 @@ terme 1: dérivée parielle en fonction du temps
 terme 2: gradient spacial
 terme 3: le changement de vélocité est l'accélération et l'accélération des particules est relié à la force agissant sur les particules
 
-mais dans la réalité, les particules entrent en collision, ce qui va faire que la fonction de distribution va changer non seulement à cause des termes présent dans sa dérivée, mais également parce que les particules entrent en collision, et toutes ces contributions qui ne sont pas capturées par la dérivée sont collectées par la partie droite qui donne la déviation de 0 et qui est appelée l'opérateur de collision $\Oméga$.
+mais dans la réalité, les particules entrent en collision, ce qui va faire que la fonction de distribution va changer non seulement à cause des termes présent dans sa dérivée, mais également parce que les particules entrent en collision, et toutes ces contributions qui ne sont pas capturées par la dérivée sont collectées par la partie droite qui donne la déviation de 0 et qui est appelée l'opérateur de collision $\Omega$.
 
 On peut retrouver les équations de Navier Stokes à partir des équations de Boltzmann avec certaunes conditions et limites.
 
@@ -491,4 +491,87 @@ $$
 f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}(x, t) -\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t) = \Omega_{i}
 $$
 
+Le terme de relaxation nous donne un déplacement ou une redistribution de notre population, mais elle n'a pas encore bougé dans l'espace, et ensuite, on la propage vers les autres voisins.
 
+Les avantages sont que les collisions sont locales et algébriques: c'est un algorithme très simple pour les collisions et la propagation est linéaire et exacte, ce qui signifie que l'on peut décomposer le lattice solveur en étape de collision et de propagation.
+
+Dans Navier-Stokes, on a la notion de viscosité alors que dans Boltzmann, on a seulement un temps de relaxation.
+On a ainsi la relation suivante:
+$$
+visc = c_{S}^2\left(\tau - \frac{\Delta t}{2}\right)
+$$
+
+avec la vitesse du son $c_{S}$ définie comme suit:
+$$
+c_{S} = \frac{1}{\sqrt{3}}\frac{\Delta x}{\Delta t}
+$$
+
+et $f_{i}^{eq}$ qui est une simplification de la distribution de Maxwell-Boltzmann défini comme suit:
+
+$$
+f_{i}^{eq} = w_{i} \rho \left(1 + \frac{c_{i} \cdot u}{c_{S}^2} + \frac{(c_{i} \cdot u)^2}{2c_{S}^4} - \frac{u \cdot u}{2c_{S}^2} \right)
+$$
+avec $w_{i}$ le poids d'une population dépendant de si la population se déplace le long des axes principaux ou diagonaux ou si elle reste sur place ( en effet, il peut changer de valeur suivant ces critères....)
+
+Comment on fait ?
+
+- Condition initiale. On connaît le $f_{i}$ initial. On peut donc calculer la densité et la vélocité par la somme des moments de $f$
+- Ensuite, on calcule la distribution équilibrée $f^{eq}$ qui dépend uniquement de la densité et de la vélocité.
+- Puis on peut calculer la distribution post collision $f_{i}^*$. Nos populations auront été redistribués dans l'espace de vélocité, mais n'auront pas bougé.
+  On peut alors propager cela aux voisins: $f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}^*$.
+
+Pourquoi ça marche ?
+
+- On a une "lattice symetry and isotropy"
+- On a la conservation de la masse et de la quantité de mouvement: $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$
+- Les analyses de Champman-Enskog nous montre que ce que l'on a fait (donc que LBE) est suffisant pour retrouver le comportement de Navier-Stokes.
+
+1. Avantages
+   - C'est rapide car c'est une méthode explicite et linéaire en propagation
+   - On n'a pas d'équation de poisson à résoudre (à la différence des équations de Navier-Stokes)
+   - C'est une méthode locale exepté pour la propagation aux voisins
+   - Facilement parallélisable (très scallable: linéaire en fonction du nombre de coeurs...)
+   - Les géométries complexes peuvent être implémentées relativement facilement comparée aux autres méthodes
+
+2. Désavantages
+   - On ne peut simuler que des "small Knudsen numbers" et des "small Mach numbers"
+
+
+Ce qu'on a appris
+
+- Discrétiser la distribution $f$
+- Discrétiser la vélocité $f(v, x, t) \rightarrow f_{i}(x, t)$
+- Simple à implémenter
+- $\tau$ détermine la viscosité du fluide
+- la méthode est rapide, facilement parallélisable, et peut être utilisée pour résoudre des systèmes complexes de géométrie
+- mais la méthode n'est pas faite pour simuler des high Knudsen ou high Mach numbers
+
+
+Pour simuler des problèmes de différente taille, il faut bien définir les conditions aux bords...
+Les conditions aux bords sont nécessaires non seulement mathématiquement, mais aussi physiquement.
+En général, on a des approches non structurées (comme la méthode SPH), des approches structurées (comme la méthode LBM)
+Il faut faire attention car si on ne s'occupe pas bien des conditions aux bords, le résultat sera mauvais...
+
+La lattice boltzmann a un zoo pour les conditions aux bords car on a plus de variable que dans les équations de Navier-Stokes.
+Par exemple, en 3d, on a 4 champs hydrodynamiques, on a la pression et on a la vélocité qui possède 3 composantes et le stress tensor $\sigma$ qui possède 6 composantes (le stress tensor est utilisé pour déterminer ce qui se passe aux bords du fluide....). Cependant, on a plus de populations...
+On a 19 ou 27 populations, ce qui signifie que l'on a plus de liberté dans LBM que dans Navier-Stokes, mais que l'on a plus de conditions à imposer et à satisfaire...
+
+D'une manière générale, on manipule des populations $f_{i}$.
+Pour savoir ce qui se passe aux conditions, nous devons savoir ce qui vient depuis l'extérieur, donc on va se dire que l'on a un $f$ qui vient de l'extérieur, et on va essayer de déterminer ce qu'il devrait être.
+
+De nombreuses personnes se sont penchés sur le problème de condition aux bords et ils ont déterminer de nombreuses conditions aux bords, ayant chacune leur avantage et leur désavantage.
+On a notamment les Bounce-back methods (simple, interpolée, partiellement saturée), les Ghost methods (FH & MLS, GZS, Image-based) et les Immerse Boundary methods (Explicit, Direct forcing, other variants)
+
+On peut par exemple définir pour Bounce-back methode que si on passe la frontière, on a $f_{i} \rightarrow f_{\hat{i}}$ avec $c_{\hat{i}} = - c_{i}$. Ainsi, on n'ajoute pas de nouvelles informations.
+Cette méthode marche pour toute les conditions de bord en escalier, est extrêmement simple et ne possède pas d'équivalent dans les CFD (computationnal fluid dynamics)
+mais elle n'est pas très précise, il y a des artéfacts numériques et si on bouge les bords, on aura des complications
+
+Conditions de bord immersive (excellent article de Peskin en 2002 !) Un principe de base est que les frontières vont bouger avec le fluide. Cette méthode n'est pas une condition de bord, mais elle ne fait que mimer l'effet d'un bord.
+
+Avantages: pas besoin d'inclure des conditions de bord réelles, l'effet sur le fluide est complètement inclus avec les forces externes, fonctionne pour des bords de n'importe quelle forme
+
+Désavantages: impact sur la précision due à diffuse interface method, le fluide existe à l'intérieur des bords, plus difficile pour les conditions limites autres que l'absence de glissement...
+
+Comme on n'a pas d'équation de poisson à résoudre, lbm est utile pour le calcul haute performance
+
+Explications prise de cette vidéo: @Krueger2.
