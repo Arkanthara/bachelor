@@ -451,3 +451,44 @@ $t \rightarrow \Delta t$ qui est constant... Donc on résoud lattice boltzmann �
 
 Vélocité:
 $f(v, x, t) \rightarrow f_{i}(x, t)$ On discrétise $f$ en terme d'espace de vélocité en autorisant seulement un très petit nombre de directions possibles de direction et de vitesse. (Notation D2Q9: 9 vélocité possibles en 2d... D3Q19: 19 vélocité possibles en 3d)
+
+Vélocité:
+
+Ce que l'on fait est que l'on dit que si on a une molécule ou $f$ n'est pas réellement une molécule, mais un ensemble de molécules
+Au lieu de dire $f$ décrit comment les molécules bougent dans toutes les directions, on dit que les molécules peuvent maintenant bouger seulement sur les axes primaires $x$, $y$, $z$ ou elles peuvent bouger sur les diagonales, et elles doivent se déplacer de telle sorte qu'en un pas de temps delta t, elles atteignent exactement l'un des noeuds de treillis voisins.
+Donc la discrétisation de l'espace de vélocité est fait de telle sorte qu'il est parfaitement aligné avec la discrétisation temporelle et spacialle.
+
+On doit donc remplacer les intégrales par des sommes finies qui n'ont que peu de termes comme 9 ou 19 plutôt que 1 million
+Le mécanisme mathématique derrière cela est "Hermite expansion" que je ne vais pas expliquer.
+
+$$(c_{i}) = \begin{bmatrix} 0 & 1 & 0 & -1 & 0 & 1 & -1 & -1 & 1 \\ 0 & 0 & 1 & 0 & -1 & 1 & 1 & -1 & -1\end{bmatrix} \frac{\Delta x}{\Delta t}$$
+pour D2Q9....
+
+Une fois que l'on a fait cela, on écrit $q$ différente population $f_{i}(x, t)$, une pour chaque $c_{i}$
+
+On a donc:
+
+$$
+\sum_{i}^{q - 1} f_{i}(x, t) = \rho(x, t)
+$$
+et 
+$$
+\sum_{i}^{q - 1} c_{i} f_{i}(x, t) = \rho u(x, t)
+$$
+
+Au lieu de l'oppérateur de collision, on utilise l'approximation BGK et l'équation résultante sera la lattice boltzmann equation ou lattice bgk equation (lbgk)
+
+$$
+f_{i}(x + c_{i}\Delta t, t + \Delta t) - f_{i}(x, t) = -\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t) = \Omega_{i}
+$$
+avec
+
+- $f_{i}(x + c_{i}\Delta t, t + \Delta t)  - f_{i}(x, t)$ une population $i$ donnée évaluée dans un point $x$ et un temps $t$ et sa contrepartie se sera déplacée de $c_{i} \times \Delta t$ où $c_{i}$ est la vitesse de la population.
+- $-\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t)$ la distribution $f_{i}$ qui va se relaxer vers la distribution équilibrée $f_{i}^{eq}$ en un temps $\frac{\Delta t}{\tau}$
+
+Ce qui nous donne si on réécrit cela:
+$$
+f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}(x, t) -\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t) = \Omega_{i}
+$$
+
+
