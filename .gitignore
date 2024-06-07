@@ -1,3 +1,5 @@
 *.swp
 plantuml-images
 venv
+
+/.quarto/

@@ -1,0 +1,51 @@
+project:
+  type: book
+
+book:
+  output-file: "Rapport"
+  title: Comparaison entre méthodes de simulation de fluides
+  author: Michel Jean Joseph Donnet
+  date: \today
+  chapters:
+    - index.md
+    - part: "Méthodologie"
+      chapters:
+        - chapitres/mecanique_fluides.md
+        - chapitres/methode_sph.md
+        - chapitres/methode_lbm.qmd
+
+bibliography: references.bib
+
+execute:
+  enabled: true
+  echo: false
+
+format:
+  pdf:
+    cite-method: biblatex
+
+toc: true
+lang: fr-FR
+documentclass: report
+top-level-division: chapter
+numbersections: true
+header-includes:
+  - \usepackage[margin=2.5cm,a4paper]{geometry}
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{hyperref}
+  - \usepackage{graphicx}
+  - \usepackage{wrapfig}
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \lhead{\nouppercase{\leftmark}}
+  - \rhead{Université de Genève}
+  - \lfoot{\put(0, -30) {\includegraphics[width=4cm]{~/Documents/bachelor/rapport/images/unige.jpg}}}
+  - \rfoot{Page \thepage / \pageref{LastPage}}
+  - \fancypagestyle{plain}{
+      \fancyhf{}
+      \renewcommand{\headrulewidth}{0pt}
+      \lfoot{\put(0, -30) {\includegraphics[width=4cm]{~/Documents/bachelor/rapport/images/unige.jpg}}}
+      \rfoot{Page \thepage / \pageref{LastPage}}
+      }
+
