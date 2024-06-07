@@ -11,18 +11,24 @@ Les particules ne peuvent donc pas se mouvoir en toute liberté, et lorsqu'une p
 
 ## Variables
 
-- $\rho$ la masse volumique du fluide. C'est une fonction qui dépend de la position à l'intérieur du volume et du temps $t$.
-- $\mathbf{v}$ le vecteur vitesse du fluide. Il dépend également de la position à l'intérieur du volume et du temps $t$.
-- $p$ la pression du fluide
-- $F$ les forces externes s'appliquant sur le fluide (comme la force de gravité)
-- $E$ l'énergie totale par unité de masse. On a $E = e + \frac{1}{2}\lVert V \rVert^2$
-- $e$ l'énergie interne par unité de masse
-- $\Sigma$ la contrainte de viscosité du fluide
-- $q$ le flux de chaleur causé par conduction thermique
-- $q_{R}$ le flux de chaleur causé par rayonnement
-- $m$ la masse des particules
-- $f$ la fonction de densité de probabilité
-- $\mathbf{x}$ la position de la particule
+| Variable | Description | Unité |
+|:--------:|:-----------:|:------:|
+|$t$| temps | $s$ |
+|$\rho$| Masse volumique du fluide | $kg\cdot m^{-3}$|
+|$\mathbf{v}$ |  Vecteur vitesse du fluide | $m\cdot s^{-1}$ |
+| $p$ | Pression du fluide | $N \cdot m^{-2}$ |
+| $F$ | Forces externes s'appliquant sur le fluide | $N$ |
+| $E$ | Énergie totale par unité de masse | $J \cdot kg^{-1}$ |
+| $e$ | Énergie interne par unité de masse | $J \cdot kg^{-1}$ |
+|$\Sigma$| Contrainte de viscosité du fluide | $N \cdot m^{-2}$ |
+| $q$ | Flux de chaleur causé par conduction thermique | $J \cdot s^{-1} \cdot m^{-2}$ |
+|$q_{R}$| Flux de chaleur causé par rayonnement | $J \cdot s^{-1} \cdot m^{-2}$ |
+| $m$ | Masse des particules | $kg$ |
+|$f$| Fonction de densité de probabilité | $m^{-3} \cdot s^{-1}$ |
+|$\mathbf{x}$| Position de la particule | $m$ |
+: table des variables utilisées {#tbl-var}
+
+Dans la table [-@tbl-var], $E = e + \frac{1}{2}\lVert \mathbf{v} \rVert^2$
 
 ## Équations d'Euler {#sec-EE}
 
