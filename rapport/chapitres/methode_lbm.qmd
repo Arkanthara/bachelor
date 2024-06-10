@@ -67,7 +67,7 @@ $$
 \xi = \frac{d\mathbf{x}}{dt}
 $$ {#eq-xi}
 
-Comme dans l'équation de Boltzmann [-@sec-BE], la fonction de distribution $f(\xi, \mathbf{x}, t)$ donne le nombre de molécules à une position $\mathbf{x}$ et à un temps $t$ qui se déplacent avec une vitesse $\lVect \xi \rVect_{2}$ dans une direction $\xi$.
+Comme dans l'équation de Boltzmann [-@sec-BE], la fonction de distribution $f(\xi, \mathbf{x}, t)$ donne le nombre de molécules à une position $\mathbf{x}$ et à un temps $t$ qui se déplacent avec une vitesse $\lVert \xi \rVert_{2}$ dans une direction $\xi$.
 
 La fonction de distribution $f$ est normalisée afin que l'intégration sur la vitesse et la position donne la masse du système, comme nous le montre l'équation [-@eq-ms].
 
@@ -96,7 +96,7 @@ $$ {#eq-mo0}
 Le moment d'ordre $1$ par rapport à $\xi$ de la fonction de distribution $f$ peut s'obtenir comme montrée dans l'équation [-@eq-mo1].
 
 $$
-\int d^3 \xi \xi \codt f(\xi, \mathbf{x}, t) = \rho u(\mathbf{x}, t)
+\int d^3 \xi \xi \cdot f(\xi, \mathbf{x}, t) = \rho u(\mathbf{x}, t)
 $$ {#eq-mo1}
 
 Dans l'équation [-@eq-mo1], la fonction $u$ est une fonction donnant la vitesse globale du fluide à une position $\mathbf{x}$ et à un temps $t$.
@@ -119,8 +119,8 @@ Afin de répondre à cette question, il suffit d'observer la dérivée totale de
 $$
 \begin{aligned}
 \frac{df(\xi, \mathbf{x}, t)}{dt}
-&= (\frac{dt}{dt} \cdot \frac{\partial}{\partial t} + \frac{d\mathbf{x}}{dt}\cdot \frac{\partial}{\partial \mathbf{x}} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, \mathbf{x}, t) \\
-&= (\frac{\partial}{\partial t} + \xi \cdot \frac{\partial}{\partial \mathbf{x}} + \frac{F}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, \mathbf{x}, t) \\
+&= \left(\frac{dt}{dt} \cdot \frac{\partial}{\partial t} + \frac{d\mathbf{x}}{dt}\cdot \frac{\partial}{\partial \mathbf{x}} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}\right) f(\xi, \mathbf{x}, t) \\
+&= \left(\frac{\partial}{\partial t} + \xi \cdot \frac{\partial}{\partial \mathbf{x}} + \frac{F}{\rho} \cdot \frac{\partial}{\partial \xi}\right) f(\xi, \mathbf{x}, t) \\
 &= \frac{\partial}{\partial t}f + \xi \cdot \nabla_{\mathbf{x}} f + \frac{F}{\rho} \cdot \nabla_{\xi}f \\
 \end{aligned}
 $$ {#eq-deriv}
@@ -143,111 +143,100 @@ $$ {#eq-bgk}
 
 La simplification donnée par l'équation [-@eq-bgk] est suffisante pour obtenir le comportement des équations de Navier-Stokes [-@sec-NSE].
 
-### Computation de la méthode LBM
+## Computation de la méthode LBM
 
 Dans cette partie, $\mathbf{v} = \xi - u$ est considérée comme la vitesse du centre de masse d'une population de particules et les collisions entre particules sont considérées comme étant élastiques ce qui permet de conserver la masse, le moment et l'énergie.
 
-#### Distribution d'équilibre $f^{eq}$
+### Distribution d'équilibre $f^{eq}$
 
 La distribution d'équilibre $f^{eq}$ doit dépendre de la densité $\rho$, de la vitesse du centre de masse $\mathbf{v}$ et de la température $T$ qui donne le degré d'agitation des particules.
 De plus, elle ne doit pas dépendre de la direction de la vitesse $\mathbf{v}$, donc elle doit être isotropique.
 Après des dérivations, la distribution d'équilibre est donnée par l'équation [-@eq-eqdist], qui est une simplification de la distribution de Maxwell-Boltzmann donnant la distribution des vitesses des particules dans un gaz à l'équilibre thermique.
 
 $$
-f^{eq} (\mathbf{v}, \mathbf{x}, t) &= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|\mathbf{v}|^2}{2RT}}
+f^{eq} (\mathbf{v}, \mathbf{x}, t) = \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|\mathbf{v}|^2}{2RT}}
 $$ {#eq-eqdist}
 
-#### Discrétisation
+### Discrétisation
 
+Il ne reste plus qu'à discrétiser la fonction de distribution $f$.
+La discrétisation donne:
 
-L'idée principale est d'utiliser les équations de Boltzmann pour résoudre les équations de Navier-Stokes, ce qui est possible grâce à Chapman-Enskog.
+- $\mathbf{x} \rightarrow \Delta \mathbf{x}$ avec $\Delta \mathbf{x}$ qui est l'espace occupé par une population. Ainsi, l'espace est divisé en plusieurs noeuds, avec chaque noeud représentant l'espace occupé par une population.
+  Par exemple dans la figure [-@fig-pop], $\Delta x$ sera un carré de la grille.
+- $t \rightarrow \Delta t$ avec $\Delta t$ qui est en général un intervale de temps fixé, donc qui est constant, bien qu'il soit possible de modifier dynamiquement $\Delta t$.
+- $f(\mathbf{v}, \mathbf{x}, t) \rightarrow f_{i}(\mathbf{x}, t)$ pour la vélocité $\mathbf{v}$. En fait, $\mathbf{v}$ est un vecteur.
+  Il peut donc prendre une infinité de directions et de valeurs.
+  C'est pourquoi, la discrétisation de la vélocité consiste à déterminer un nombre limité de directions et de valeurs que peut prendre le vecteur vitesse $\mathbf{v}$.
+  Par exemple, la figure [-@fig-vel] illustre les vélocités que peut prendre une population.
+  La notation D2Q9 indique que l'espace possède 2 dimensions et que seulement 9 valeurs de vélocité sont possible pour une population.
+  $c_{i}$ est alors défini comme dans l'équation [-@eq-ci] ce qui permet de définir $q$ populations $f_{i}(\mathbf{x}, t)$, une pour chaque $c_{i}$ et de donner les équations [-@eq-rho2] et [-@eq-qmouv2] qui sont simplement une somme de quelques termes obtenus grâce à un mécanisme mathématique appelé "Hermite expansion".
+  $$(c_{i}) = \begin{bmatrix} 0 & 1 & 0 & -1 & 0 & 1 & -1 & -1 & 1 \\ 0 & 0 & 1 & 0 & -1 & 1 & 1 & -1 & -1\end{bmatrix} \frac{\Delta \mathbf{x}}{\Delta t}$$ {#eq-ci}
+  $$
+  \sum_{i}^{q - 1} f_{i}(\mathbf{x}, t) = \rho(\mathbf{x}, t)
+  $$ {#eq-rho2}
+  $$
+  \sum_{i}^{q - 1} c_{i} f_{i}(\mathbf{x}, t) = \rho u(\mathbf{x}, t)
+  $$ {#eq-qmouv2}
+  Ainsi, par cette discrétisation, les particules se déplacent soit dans un noeud voisin, soit restent sur place.
+  Donc la discrétisation de la vélocité est parfaitement alignée sur la discrétisation du temps et de l'espace.
 
-Nous allons simuler l'évolution de la fonction de densité $f$ plutôt que l'évolution de la vitesse et de la pression, ce qui nous intéresse normalement dans un fluide microscopique...
+![prise du travail de Körner et al. [-@Velocity]](../images/velocity.png){#fig-vel}
 
-Pourquoi utiliser la méthode Boltzmann ?? En effet, il y a plus de variables, cela a l'air plus difficile...
-On utilise cette méthode car elle s'avère plus pratique qu'une discrétisation des équations de Navier-Stokes.
-
-On a donc à
-- Discrétiser la fonction de distribution $f$
-- Qu'est ce que la lattice boltzman equation (LBE)
-- comment sont liés l'équation de Navier-stokes et l'équation de boltzmann ?
-
-Espace: 
-$x \rightarrow \Delta x$ (lattice). On prend l'espace et on le décompose en "small lattice nodes" et on résoud l'équation pour chaque noeud du treillis (ou de la lattice...)
-
-Temps:
-$t \rightarrow \Delta t$ qui est constant... Donc on résoud lattice boltzmann à un temps t, puis on avance de $\Delta t$.... On peut également faire le temps dynamiquement...
-
-Vélocité:
-$f(v, x, t) \rightarrow f_{i}(x, t)$ On discrétise $f$ en terme d'espace de vélocité en autorisant seulement un très petit nombre de directions possibles de direction et de vitesse. (Notation D2Q9: 9 vélocité possibles en 2d... D3Q19: 19 vélocité possibles en 3d)
-
-Vélocité:
-
-Ce que l'on fait est que l'on dit que si on a une molécule ou $f$ n'est pas réellement une molécule, mais un ensemble de molécules
-Au lieu de dire $f$ décrit comment les molécules bougent dans toutes les directions, on dit que les molécules peuvent maintenant bouger seulement sur les axes primaires $x$, $y$, $z$ ou elles peuvent bouger sur les diagonales, et elles doivent se déplacer de telle sorte qu'en un pas de temps delta t, elles atteignent exactement l'un des noeuds de treillis voisins.
-Donc la discrétisation de l'espace de vélocité est fait de telle sorte qu'il est parfaitement aligné avec la discrétisation temporelle et spacialle.
-
-On doit donc remplacer les intégrales par des sommes finies qui n'ont que peu de termes comme 9 ou 19 plutôt que 1 million
-Le mécanisme mathématique derrière cela est "Hermite expansion" que je ne vais pas expliquer.
-
-$$(c_{i}) = \begin{bmatrix} 0 & 1 & 0 & -1 & 0 & 1 & -1 & -1 & 1 \\ 0 & 0 & 1 & 0 & -1 & 1 & 1 & -1 & -1\end{bmatrix} \frac{\Delta x}{\Delta t}$$
-pour D2Q9....
-
-Une fois que l'on a fait cela, on écrit $q$ différente population $f_{i}(x, t)$, une pour chaque $c_{i}$
-
-On a donc:
-
-$$
-\sum_{i}^{q - 1} f_{i}(x, t) = \rho(x, t)
-$$
-et 
-$$
-\sum_{i}^{q - 1} c_{i} f_{i}(x, t) = \rho u(x, t)
-$$
-
-Au lieu de l'oppérateur de collision, on utilise l'approximation BGK et l'équation résultante sera la lattice boltzmann equation ou lattice bgk equation (lbgk)
-
-$$
-f_{i}(x + c_{i}\Delta t, t + \Delta t) - f_{i}(x, t) = -\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t) = \Omega_{i}
-$$
-avec
-
-- $f_{i}(x + c_{i}\Delta t, t + \Delta t)  - f_{i}(x, t)$ une population $i$ donnée évaluée dans un point $x$ et un temps $t$ et sa contrepartie se sera déplacée de $c_{i} \times \Delta t$ où $c_{i}$ est la vitesse de la population.
-- $-\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t)$ la distribution $f_{i}$ qui va se relaxer vers la distribution équilibrée $f_{i}^{eq}$ en un temps $\frac{\Delta t}{\tau}$
-
-Ce qui nous donne si on réécrit cela:
-$$
-f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}(x, t) -\frac{\Delta t}{\tau}(f_{i}(x, t) - f_{i}^{eq}(x, t) = \Omega_{i}
-$$
-
-Le terme de relaxation nous donne un déplacement ou une redistribution de notre population, mais elle n'a pas encore bougé dans l'espace, et ensuite, on la propage vers les autres voisins.
-
-Les avantages sont que les collisions sont locales et algébriques: c'est un algorithme très simple pour les collisions et la propagation est linéaire et exacte, ce qui signifie que l'on peut décomposer le lattice solveur en étape de collision et de propagation.
-
-Dans Navier-Stokes, on a la notion de viscosité alors que dans Boltzmann, on a seulement un temps de relaxation.
-On a ainsi la relation suivante:
-$$
-visc = c_{S}^2\left(\tau - \frac{\Delta t}{2}\right)
-$$
-
-avec la vitesse du son $c_{S}$ définie comme suit:
-$$
-c_{S} = \frac{1}{\sqrt{3}}\frac{\Delta x}{\Delta t}
-$$
-
-et $f_{i}^{eq}$ qui est une simplification de la distribution de Maxwell-Boltzmann défini comme suit:
+Les discrétisations introduites permettent de discrétiser également la fonction de distribution équilibrée comme montrée dans l'équation [-@eq-fieq] avec $w_{i}$ le poids d'une population qui dépend de si la population se déplace le long des axes principaux ou diagonaux ou encore si elle reste sur place. 
 
 $$
 f_{i}^{eq} = w_{i} \rho \left(1 + \frac{c_{i} \cdot u}{c_{S}^2} + \frac{(c_{i} \cdot u)^2}{2c_{S}^4} - \frac{u \cdot u}{2c_{S}^2} \right)
+$$ {#eq-fieq}
+
+La variable $c_{S}$ représente la vitesse du son et est définie dans l'équation [-@eq-cs].
+
 $$
-avec $w_{i}$ le poids d'une population dépendant de si la population se déplace le long des axes principaux ou diagonaux ou si elle reste sur place ( en effet, il peut changer de valeur suivant ces critères....)
+c_{S} = \frac{1}{\sqrt{3}}\frac{\Delta \mathbf{x}}{\Delta t}
+$$ {#eq-cs}
 
-Comment on fait ?
+### Itération
 
-- Condition initiale. On connaît le $f_{i}$ initial. On peut donc calculer la densité et la vélocité par la somme des moments de $f$
-- Ensuite, on calcule la distribution équilibrée $f^{eq}$ qui dépend uniquement de la densité et de la vélocité.
-- Puis on peut calculer la distribution post collision $f_{i}^*$. Nos populations auront été redistribués dans l'espace de vélocité, mais n'auront pas bougé.
-  On peut alors propager cela aux voisins: $f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}^*$.
+L'objectif est de savoir pour une fonction de distribution $f$ donnée comment celle-ci évoluera au temps $t + \Delta t$.
+
+La "Lattice Boltzmann Equation" (LBE) ou "Lattice BGK equation" est alors définie comme dans l'équation [-@eq-lbe].
+
+$$
+\frac{df}{dt} \approx f_{i}(\mathbf{x} + c_{i}\Delta t, t + \Delta t) - f_{i}(\mathbf{x}, t) = -\frac{\Delta t}{\tau}(f_{i}(\mathbf{x}, t) - f_{i}^{eq}(\mathbf{x}, t)) = \Omega_{i}
+$$ {#eq-lbe}
+
+Ce qui peut se réécrire comme l'équation [-@eq-lbe2].
+
+$$
+f_{i}(\mathbf{x} + c_{i}\Delta t, t + \Delta t) = f_{i}(\mathbf{x}, t) -\frac{\Delta t}{\tau}(f_{i}(\mathbf{x}, t) - f_{i}^{eq}(\mathbf{x}, t))
+$$ {#eq-lbe2}
+
+Dans l'équation [-@eq-lbe2], le terme de relaxation donne un déplacement ou une redistribution de la population $i$, qui ne s'est pas encore déplacée.
+Elle est ensuite propagée vers ses voisins.
+
+Les avantages sont que les collisions sont locales et algébriques: c'est un algorithme très simple pour les collisions et la propagation est linéaire et exacte, ce qui signifie que l'on peut décomposer le solveur [-@eq-lbe2] en étape de collision et de propagation.
+
+### Viscosité
+
+Les équations de Navier-Stokes [-@sec-NSE] utilisent le terme de viscosité tandis que l'équation de Boltzmann [-@sec-BE] utilise le terme de temps de relaxation.
+
+Les 2 termes sont liés par l'équation [-@eq-visc] avec la vitesse du son $c_{S}$ définie dans l'équation [-@eq-cs].
+
+$$
+\Sigma = c_{S}^2\left(\tau - \frac{\Delta t}{2}\right)
+$$ {#eq-visc}
+
+
+### Algorithme
+
+- La condition initiale $f_{i}$ est connue. Ainsi, il est possible de calculer la densité et la vélocité par la somme des moments de $f$.
+- La distribution équilibrée peut donc être calculée grâce à la condition initiale $f_{i}$ car elle ne dépend que de la densité et de la vélocité, qui ont pu être calculé précédement.
+- La distribution post collision $f_{i}^*(\mathbf{x}, t) = f_{i}(\mathbf{x}, t) -\frac{\Delta t}{\tau}(f_{i}(\mathbf{x}, t) - f_{i}^{eq}(\mathbf{x}, t))$ est ensuite calculée grâce à la distribution équilibrée et à la condition initiale car le temps de relaxation est fixé afin d'avoir une viscosité donnée. Elle donne comment les populations sont redistribuées dans l'espace des vélocités, mais ne déplace pas les populations.
+  Il s'agit de l'étape collision de la figure [-@fig-algo].
+- La propagation de la distribution post collision $f_{i}^*$ aux voisins: $f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}^*i(\mathbf{x}, t)$. C'est l'étape propagation de la figure [-@fig-algo].
+Cela est représenté dans la figure [-@fig-algo].
+
+![prise dans le travail de Schiller et al. [-@algo]](../images/algo.png){#fig-algo}
 
 Pourquoi ça marche ?
 
@@ -255,26 +244,21 @@ Pourquoi ça marche ?
 - On a la conservation de la masse et de la quantité de mouvement: $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$
 - Les analyses de Champman-Enskog nous montre que ce que l'on a fait (donc que LBE) est suffisant pour retrouver le comportement de Navier-Stokes.
 
-1. Avantages
-   - C'est rapide car c'est une méthode explicite et linéaire en propagation
-   - On n'a pas d'équation de poisson à résoudre (à la différence des équations de Navier-Stokes)
-   - C'est une méthode locale exepté pour la propagation aux voisins
-   - Facilement parallélisable (très scallable: linéaire en fonction du nombre de coeurs...)
-   - Les géométries complexes peuvent être implémentées relativement facilement comparée aux autres méthodes
+## Avantages
 
-2. Désavantages
-   - On ne peut simuler que des "small Knudsen numbers" et des "small Mach numbers"
+- La méthode LBM est rapide car elle est explicite et linéaire en propagation.
+- Il n'y a pas d'équation de poisson à résoudre car on ne résoud pas directement les équations de Navier-Stokes [-@sec-NSE].
+- La méthode LBM est locale.
+- Le fait que la méthode LBM est locale la rend facilement parallélisable car c'est possible de séparer le calcul. De plus, la méthode LBM est très scalable.
+- Les géométries complexes peuvent être implémentées facilement
+
+## Désavantages
+
+- On ne peut que simuler des "small Knudsen numbers" et des "small Mach numbers"
+- Les conditions aux bords doivent correctement être définies.
 
 
-Ce qu'on a appris
-
-- Discrétiser la distribution $f$
-- Discrétiser la vélocité $f(v, x, t) \rightarrow f_{i}(x, t)$
-- Simple à implémenter
-- $\tau$ détermine la viscosité du fluide
-- la méthode est rapide, facilement parallélisable, et peut être utilisée pour résoudre des systèmes complexes de géométrie
-- mais la méthode n'est pas faite pour simuler des high Knudsen ou high Mach numbers
-
+## Conditions aux bords
 
 Pour simuler des problèmes de différente taille, il faut bien définir les conditions aux bords...
 Les conditions aux bords sont nécessaires non seulement mathématiquement, mais aussi physiquement.
