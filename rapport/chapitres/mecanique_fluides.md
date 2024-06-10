@@ -164,7 +164,7 @@ $$
 \frac{\partial f}{\partial t} + \mathbf{v} \nabla_{\mathbf{x}} f + \frac{F}{m} \nabla_{\mathbf{v}} f = 0
 $$ {#eq-nocol2}
 
-### Collisions non négligées
+### Collisions non négligées {#sec-nocol}
 
 Cependant, dans la réalité, des collisions existent entre les particules.
 Comme les particules interagissent entre elles, la fonction de distribution va subir des modifications en fonction des collisions.

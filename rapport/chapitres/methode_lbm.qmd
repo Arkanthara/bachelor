@@ -51,134 +51,114 @@ plt.legend(loc='upper left')
 plt.show()
 ```
 
-Ainsi, ce ne sont pas des particules, mais des groupes de particules qui sont représentés, c'est pourquoi ce sera une physique probabiliste et non déterministe qui sera utilisée.
+Ainsi, ce ne sont pas des particules, mais des groupes de particules qui sont représentés, c'est pourquoi la physique appliquée ne sera pas déterministe, mais probabiliste.
 
-Comme expliqué dans la section [-@sec-lbmh], la méthode LBM ne repose pas sur les équations de Navier-Stokes [-@sec-NSE], mais sur les équations de Boltzmann [-@sec-BE], utilisées et adaptées pour résoudre les équations de Navier-Stokes [-@sec-NSE].
+Comme expliqué dans la section [-@sec-lbmh], la méthode LBM ne repose pas sur les équations de Navier-Stokes [-@sec-NSE], mais sur l'équation de Boltzmann [-@sec-BE], utilisée et adaptée pour résoudre les équations de Navier-Stokes [-@sec-NSE].
+Cependant, la méthode LBM n'est pas un solveur pour l'équation de Boltzmann [-@sec-BE].
 
-La méthode LBM représente le fluide comme un ensemble de particules qui elles-mêmes représentent un ensemble de molécules.
-Elle est utilisée pour étudier le comportement de mésoscale fluides. (De l'ordre de $10^{-9}$ à $10^{-6}$ mètres)
+## Représentation et fonction de distribution
 
-Comme on représente non pas chaque molécule mais des groupes de molécule, la physique utilisée est probabilistique.
+Dans la méthode LBM, le système est représenté comme un ensemble de particules dans une grille ou une lattice, comme nous le montre la figure [-@fig-pop].
+Le but est alors de savoir comment vont évoluer ces particules dans la grille, comment celles-ci vont interagir entre elles, quel est leurs mouvements moyen dans le système et quel est leur vitesse.
 
-Les équations alors utilisées ne sont pas les équations de Navier-Stokes @sec-NSE, mais les équations de Boltzmann.
-
-La méthode LBM utilise les équations de Boltzmann, mais n'est pas un solveur pour ces équations...
-
-On peut représenter l'espace comme un ensemble de molécules dans une grille, et on est intéressé de savoir comment les molécules vont entrer en collision...
-
-On veut connaître où vont les molécules en moyenne et quelle est leur distribution dans l'espace de vitesse
-
-Dans les équations de Navier-Stokes @sec-NSE, on a le temps et la position comme variable, mais dans la méthode LBM, on prend également la vélocité des molécules comme une variable.
-
-On définit alors $\xi$ comme dans l'équation [-@eq-xi] où $\xi$ est la vélocité moléculaire qui donne le changement de position de la molécule en fonction du temps
-
-On veut savoir combien de molécules dans une cellule se déplacent dans une direction à un temps donné.
-
-his enable continuum level descriptions on a kinetic level where molecules are behaving kinetically
-Cela permet des descriptions au niveau du continuum à un niveau cinétique où les molécules se comportent de manière cinétique.
-Cela permet d'avoir un 
+Dans les équations de Navier-Stokes [-@sec-NSE], il n'y a que 2 variables qui sont la position et le temps, tandis que dans la méthode LBM, la vélocité des molécules est également perçue comme une variable qui pourra être nommée $\xi$ et qui décrit le changement de position $\mathbf{x}$ de la molécule en fonction du temps $t$, comme nous le montre l'équation [-@eq-xi].
 
 $$
-\xi = \frac{dx}{dt}
+\xi = \frac{d\mathbf{x}}{dt}
 $$ {#eq-xi}
 
-$$
-f(\xi, x, t)
-$$
-Donne le nombre de molécules que l'on a à un point donné à un temps donné qui bougent dans une direction donnée avec une vitesse donnée.
+Comme dans l'équation de Boltzmann [-@sec-BE], la fonction de distribution $f(\xi, \mathbf{x}, t)$ donne le nombre de molécules à une position $\mathbf{x}$ et à un temps $t$ qui se déplacent avec une vitesse $\lVect \xi \rVect_{2}$ dans une direction $\xi$.
 
-Cette distribution $f$ est normalisée de telle façon que si on intègre sur la vitesse et la position, on obtient la masse du système:
+La fonction de distribution $f$ est normalisée afin que l'intégration sur la vitesse et la position donne la masse du système, comme nous le montre l'équation [-@eq-ms].
 
 $$
-\int d^3 \xi \int d^3 x f(\xi, x, t) = M(t)
+\int d^3 \xi \int d^3 \mathbf{x} f(\xi, \mathbf{x}, t) = M(t)
+$$ {#eq-ms}
+
+### Moments de la fonction de distribution
+
+Il est possible de calculer les moments de la distribution $f$.
+
+Ce qui est tout particulièrement intéressant est de calculer les moments de la distribution $f$ en fonction de la vitesse des molécules $\xi$ car cela permet de relier la description à l'échelle des molécules, c'est à dire de la description mésoscopique, à la description macroscopique du fluide tel que la densité, la pression ou encore la vitesse du fluide.
+En effet, cela permet de prendre les contributions de chaque molécule afin d'obtenir les propriétés globales du fluide.
+
+#### Moment d'ordre $0$
+
+Le moment d'ordre $0$ par rapport à $\xi$ peut se calculer comme dans l'équation [-@eq-mo0].
+Il permet d'obtenir la densité $\rho$ du fluide à une position $\mathbf{x}$ et à un temps $t$ car il résulte de l'intégration en fonction de la vitesse des particules que le résultat consiste à prendre chaque particule sans considérer la vitesse que peuvent avoir ces particules ce qui donne la densité de particules en une position $\mathbf{x}$ pour un temps $t$.
+
 $$
+\int d^3 \xi f(\xi, \mathbf{x}, t) = \rho(\mathbf{x}, t)
+$$ {#eq-mo0}
 
-Et si on intègre sur seulement la vélocité, on obtient la densité car cela correspond à seulement prendre toutes les molécules, sans tenir compte de leur vitesse.
+#### Moment d'ordre $1$
 
-$$
-\int d^3 \xi f(\xi, x, t) = \rho(x, t)
-$$
-
-Si on calcule le premier moment de la distribution, donc si on multiplie par la vitesse des molécules et qu'ensuite on intègre en fonction de la vitesse, on obtient le moment de densité du système pour une cellule donnée.
+Le moment d'ordre $1$ par rapport à $\xi$ de la fonction de distribution $f$ peut s'obtenir comme montrée dans l'équation [-@eq-mo1].
 
 $$
-\int d^3 \xi \xi \cdot f(\xi, x, t) = \rho u(x, t)
-$$
+\int d^3 \xi \xi \codt f(\xi, \mathbf{x}, t) = \rho u(\mathbf{x}, t)
+$$ {#eq-mo1}
 
-On peut faire la même chose pour obtenir la pression, mais c'est plus compliqué.
+Dans l'équation [-@eq-mo1], la fonction $u$ est une fonction donnant la vitesse globale du fluide à une position $\mathbf{x}$ et à un temps $t$.
+En d'autres termes, cela donne la vitesse macroscopique du fluide en une position et un temps donnée.
 
-On est intéressé par la densité et le moment de densité car ces variables apparraissent dans les équations de Navier-Stokes.
+La quantité de mouvement est alors obtenue par l'équation [-@eq-mo1] car elle donne la multiplication de la densité avec la vitesse.
 
-$f$ contient toutes les propriétés locales du fluide qui nous intéressent.
-Si on va au niveau des équations de Navier Stokes, on est uniquement intéressé par obtenir les moments de $f$, ce qui signifie le moment d'ordre 0 qui est la densité et le moment d'ordre 1 qui est le moment de densité
+#### Moment d'ordre $2$
 
-On veut trouver une équation qui décrit comment $f$ évolue dans le temps
+La pression du fluide est liée au moment d'ordre $2$ de la fonction de distribution, ce qui ne vas pas être détaillé ici par soucis de simplicité.
 
-On peut utiliser la règle de chainage et obtenir:
+## Évolution de la fonction de distribution en fonction du temps
+
+La fonction de densité $f$ contient toutes les propriétés locales du fluide.
+
+Mais comment la fonction $f$ évolue-t-elle au cours du temps ?
+
+Afin de répondre à cette question, il suffit d'observer la dérivée totale de $f$ en fonction du temps $t$, ce qui est calculé dans l'équation [-@eq-deriv] grâce aux règles de chaînage et aux définitions de la vitesse $\xi$ [-@eq-xi]
 
 $$
 \begin{aligned}
-\frac{df(\xi, x, t)}{dt}
-&= (\frac{\partial}{\partial t} + \frac{dx}{dt}\cdot \frac{\partial}{\partial x} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
-&= (\frac{\partial}{\partial t} + \xi \cdot \frac{\partial}{\partial x} + \frac{f}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, x, t) \\
-&= \Omega (f)
+\frac{df(\xi, \mathbf{x}, t)}{dt}
+&= (\frac{dt}{dt} \cdot \frac{\partial}{\partial t} + \frac{d\mathbf{x}}{dt}\cdot \frac{\partial}{\partial \mathbf{x}} + \frac{d\xi}{dt} \cdot \frac{\partial}{\partial \xi}) f(\xi, \mathbf{x}, t) \\
+&= (\frac{\partial}{\partial t} + \xi \cdot \frac{\partial}{\partial \mathbf{x}} + \frac{F}{\rho} \cdot \frac{\partial}{\partial \xi}) f(\xi, \mathbf{x}, t) \\
+&= \frac{\partial}{\partial t}f + \xi \cdot \nabla_{\mathbf{x}} f + \frac{F}{\rho} \cdot \nabla_{\xi}f \\
 \end{aligned}
-$$
+$$ {#eq-deriv}
 
-terme 1: dérivée parielle en fonction du temps
-terme 2: gradient spacial
-terme 3: le changement de vélocité est l'accélération et l'accélération des particules est relié à la force agissant sur les particules
+Dans l'équation [-@eq-deriv], la force $F$ est appliquée sur une masse volumique $\rho$ plutôt que sur la masse $m$ de chaque particule.
+C'est pourquoi, grâce à la relation entre la force, la masse et l'accélération de la 2ème loi de Newton, on obtient le terme $\frac{F}{\rho}$.
 
-mais dans la réalité, les particules entrent en collision, ce qui va faire que la fonction de distribution va changer non seulement à cause des termes présent dans sa dérivée, mais également parce que les particules entrent en collision, et toutes ces contributions qui ne sont pas capturées par la dérivée sont collectées par la partie droite qui donne la déviation de 0 et qui est appelée l'opérateur de collision $\Omega$.
+### Opérateur de collision $\Omega$
 
-On peut retrouver les équations de Navier Stokes à partir des équations de Boltzmann avec certaunes conditions et limites.
+Comme expliqué dans la section [-@sec-nocol], lorsque les collisions ne sont pas négligées, la variation de la fonction de distribution $f$ est donnée par les collisions entre les particules.
+C'est pourquoi un opérateur de collision $\Omega$ est défini.
 
-Navier Stokes vs boltzmann: Navier Stokes plus simple car possède seulement les données en fonction du temps et de la position: la vitesse $\xi$ n'est pas prise en compte...
+Décrire précisément les collisions entre les particules est une chose difficile et coûteuse.
 
-Les équations de Boltzman n'ont pas de détails microscopiques
-
-La fonction de distribution va être déformée par l'opérateur de collision.
-On ne prend pas en compte chaque collision, sinon le calcul devient monstrueux, mais on peut estimer que au bout d'un moment, on arrive à un équilibre. On appelle $f^{eq}$ la distribution équilibrée.
-On estime alors que l'on peut modéliser la relaxation vers $f^{eq}$ à partir d'un état non équilibré $f$ par un modèle Bhatnagar-Gross-Krook (BGK):
+Cependant, grâce au travail de Bhatnagar, Gross et Krook (BGK) [-@Bhatnagar], comme le système va tendre vers un état équilibré $f^{eq}$ à partir de l'état non équilibré $f$, l'opérateur de collision peut être simplifié en la relaxation de $f$ vers $f^{eq}$ comme l'équation [-@eq-bgk] montre, avec $\tau$ le temps de relaxation.
 
 $$
 \Omega (f) =- \frac{1}{\tau} (f - f^{eq})
-$$
-avec $\tau$ le temps de relaxation
+$$ {#eq-bgk}
 
-C'est une grosse simplification, mais cela marche tout de même avec les équations de Boltzmann dans une simulation numérique, et cette simplification est suffisante pour retrouver le comportement des équations de Navier-Stokes.
+La simplification donnée par l'équation [-@eq-bgk] est suffisante pour obtenir le comportement des équations de Navier-Stokes [-@sec-NSE].
 
-On définit
-- $\xi$ la vélocité absolue de nos molécules
-- $u = \int d^3 \xi \xi \cdot \frac{f(\xi, x, t)}{\rho}$ est la vélocité moyenne du fluide dans la cellule. C'est la vélocité moyenne des molécules dans une surface donnée. C'est la vitesse macroscopique du liquide à un point donné
-- $v = \xi - u$ comme la vitesse du centre de masse de ces molécules. Il donne comment les molécules sont distribuées individuellement dans l'espace des vitesses autour de la vélocité u.
+### Computation de la méthode LBM
 
-On utilise communément $u$ et $v$ et non pas $\xi$.
+Dans cette partie, $\mathbf{v} = \xi - u$ est considérée comme la vitesse du centre de masse d'une population de particules et les collisions entre particules sont considérées comme étant élastiques ce qui permet de conserver la masse, le moment et l'énergie.
 
-Les collisions doivent conserver la masse (densité), le moment (vélocité) (3ème loi de newton) et l'énergie (température) (collisions sont élastiques...)
-La distribution d'équilibre $f^{eq}$ doit dépendre seulement de la densité $\rho$, la vitesse du centre de masse $v$ et de la température $T$. et elle doit être isotropique.
-elle doit être isotrope, peu importe la direction de l'espace dans lequel nous regardons, elle ne peut donc dépendre que de la magnitude de v
-On arrive après des dérivations à la fonction de distribution équilibrée [-@eq-eqdist]
+#### Distribution d'équilibre $f^{eq}$
+
+La distribution d'équilibre $f^{eq}$ doit dépendre de la densité $\rho$, de la vitesse du centre de masse $\mathbf{v}$ et de la température $T$ qui donne le degré d'agitation des particules.
+De plus, elle ne doit pas dépendre de la direction de la vitesse $\mathbf{v}$, donc elle doit être isotropique.
+Après des dérivations, la distribution d'équilibre est donnée par l'équation [-@eq-eqdist], qui est une simplification de la distribution de Maxwell-Boltzmann donnant la distribution des vitesses des particules dans un gaz à l'équilibre thermique.
 
 $$
-\begin{aligned}
-f^{eq} (v, x, t) &= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|v|^2}{2RT}} \\
-&= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|\xi - u|^2}{2RT}} \\
-\end{aligned}
-$${#eq-eqdist}
+f^{eq} (\mathbf{v}, \mathbf{x}, t) &= \rho \left(\frac{1}{2\pi RT}\right)^{3/2} e^{-\frac{|\mathbf{v}|^2}{2RT}}
+$$ {#eq-eqdist}
 
-Qu'est ce qu'on a appris ?
+#### Discrétisation
 
-- séparation dans le temps et dans l'espace
-- remplacement des molécules par une fonction de distribution $f(v, x, t)$ (mesoscopic picture)
-- Boltzmann équation: équation gouvernant la distribution $f$
-- On a besoin de l'opérateur de collision $\Omega (f)$ qui est très complexe dans sa forme matématique
-- On utilise un opérateur de collision simplifié grâce à BGK qui nous donne une distribution équilibrée $f^{eq}$
-- On peut calculer la densité $\rho$, la vélocité $u$ et la pression $p$ macroscopique du fluide grâce aux moments de $f(v, x, t)$
-- On peut retrouver les équations de Navier Stokes
-
-we can use a navier stokes server that is not directly distretizing the navier-stokes equations but that is rooted in boltzmann theory
-Nous pouvons utiliser un serveur de Navier-Stokes qui ne distord pas directement les équations de Navier-Stokes mais qui est enraciné dans la théorie de Boltzmann.
 
 L'idée principale est d'utiliser les équations de Boltzmann pour résoudre les équations de Navier-Stokes, ce qui est possible grâce à Chapman-Enskog.
 
