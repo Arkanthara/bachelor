@@ -1,0 +1,144 @@
+# La containerisation
+
+Dans ce rapport, beaucoup de théorie a déjà été faite sur différentes méthodes de simulation.
+Cela est dû en grande partie parce que je considère qu'il est important de savoir comment ça marche avant de comparer les méthodes, et parce que j'ai trouvé la méthodologie très intéressante.
+
+Je me permettrait d'utiliser un jargon informatique dans ce chapitre pour plus de clarté.
+En effet, un jour ma mère m'a demandé ce que j'avais fait, et je lui ai répondu "J'ai enlevé des insectes de ma poubelle" ce qui signifie en jargon informatique "j'ai enlevé des bugs dans mon container"
+
+Dans ce chapitre, je vais un peu expliquer la containerisation car cela a fait grandement partie de mon projet de bachelor.
+
+En effet, j'ai dû reprendre une application qui datait de 2017 et qui ne fonctionnait plus car elle n'était plus compatible avec les librairies actuelles et réussir à installer la version de 2017 des librairies est compliqué (je n'y suis pas parvenu).
+
+C'est à cet instant que la containerisation prend toute son importance.
+
+## Notions générales
+
+Un ordinateur ne comprend que des zéros et des uns, ce qui n'est pas le cas de l'homme.
+C'est pourquoi, il y a toujours un système d'exploitation qui tourne sur l'ordinateur afin de servir d'interface entre l'homme et la machine.
+Un système d'exploitation est composé d'un noyau ou kernel, d'outils systèmes et de librairies permettant à l'utilisateur d'interagir avec la machine, contrôlée par le noyau.
+
+Une machine virtuelle (VM) est une émulation d'un système informatique physique, créée par un logiciel de virtualisation. Elle permet d'exécuter un système d'exploitation complet et ses applications sur un matériel virtuel, indépendamment du matériel physique sous-jacent. Les machines virtuelles offrent une isolation forte, une grande flexibilité et sont largement utilisées dans diverses applications informatiques (ChatGPT).
+
+Les machines virtuelles sont gérées par un hyperviseur, comme il est possible de voir sur la figure [-@fig-vm], qui s'occupe alors notamment de l'isolation et de la gestion des ressources des machines virtuelles.
+
+Ainsi, il est possible de mettre une application sur une machine virtuelle car toutes ses dépendances pourront être installées sur le système d'exploitation du matériel virtuel.
+L'application pourra alors fonctionner sur n'importe quel matériel physique possédant un hyperviseur pour machine virtuelles.
+
+Cependant, un système d'exploitation occupe beaucoup de mémoire.
+Par exemple, Windows 10 occupe environ 20Go de mémoire.
+Donc est-ce nécessaire de déployer une machine virtuelle pour une application qui fait seulement 10Mo ? Ou alors c'est une perte de place ?
+Et est-ce que c'est vraiment utile d'avoir toutes les fonctionnalités du système d'exploitation pour déployer l'application, ou alors on peut se contenter de seulement quelques fonctionnalités ?
+
+Les containers sont alors une solution à ce problème.
+En effet, un container ne virtualise non pas le matériel (comme le stockage ou la mémoire), mais un système d'exploitation, ce qui signifie qu'ils n'ont pas besoin d'avoir leur propre système d'exploitation, ce qui fait notamment un grand gain de stockage.
+Cela permet également de n'utiliser que les fonctionnalités du système d'exploitation qui sont nécessaire au bon fonctionnement du container.
+Il en résulte que les containers ont un impact beaucoup plus faible sur les performances du matériel physique qu'une machine virtuelle.
+Le principe du container est simple: mettre dedans le code et toutes ses dépendances afin de pouvoir l'exécuter sur n'importe quel système.
+Les containers sont gérés par un démon, comme il est possible de voir sur la figure [-@fig-container].
+
+::: {#fig-contvsvm layout-ncol=2}
+
+![Container](../images/container.png){#fig-container width=75%}
+
+![VM](../images/vm.png){#fig-vm width=75%}
+
+Virtual Machine (VM) et container [-@Liam]
+:::
+
+## Pourquoi utiliser la containerisation ?
+
+Dans mon projet de bachelor, je me suis occupé de rendre fonctionnel un code qui n'a pas eu de maintenance depuis 2018 environ.
+
+J'ai donc dû comprendre ce qui ne fonctionnait pas et le rendre exécutable, ce qui fut résolu avec succès.
+Ici, si l'auteur du code avait créé un container, je n'aurais pas eu besoin de devoir mettre à jour le code, ce qui est beaucoup plus pratique.
+
+À ce moment, je ne m'étais toujours pas penché sur la containerisation.
+
+Cependant, le projet avançant, je me suis heurté à des comportements spéciaux de mon code, et comme celui-ci utilise une carte graphique NVIDIA, je ne pouvais pas montrer à mon professeur encadrant mes problèmes afin d'avoir une piste de déblocage.
+Mais mon professeur possède des serveurs distants équipés de cartes graphiques NVIDIA.
+
+On a donc essayé d'exécuter le code sur le serveur distant, mais on s'est heurté à des problèmes de librairies manquantes et d'autres problème.
+
+C'est alors que la containerisation a pris toute son importance dans mon projet de bachelor.
+
+En effet, l'objectif était alors de mettre le code dans un container qui s'exécutera sur le serveur distant du professeur afin de lui montrer mes problèmes et de pouvoir directement essayer des solutions.
+
+Je me suis donc penché sur la containerisation, et j'ai réussi à créer un container qui était capable d'exécuter le code et de me donner le résultat qui est un résultat visuel de simulation de fluide.
+
+```{mermaid}
+%%| fig-cap: "Représentation de l'affichage d'une application graphique containerisée"
+%%| label: fig-displaypc
+%%| fig-width: 6
+flowchart LR
+    subgraph Ordinateur
+        subgraph Container
+            C[code]
+            subgraph A[affichage]
+              subgraph D[Serveur Xorg]
+                s[socket .X11-unix]
+              end
+            end
+        end
+        subgraph F[affichage]
+            subgraph G[Serveur Xorg]
+              S[socket .X11-unix]
+            end
+            B{xhost}
+            E["fa:fa-error erreur affichage non autorisé !"]
+        end
+    end
+    Écran
+
+    C-->|rendu| s
+    S <-->|liaison| s
+    s -->|rendu| B
+    B --> |autorisé| S
+    B --> |non autorisé| E
+    S -->|affichage| Écran
+```
+
+Le principe est simple: on connecte le socket du serveur d'affichage X11 au socket d'affichage du container, comme cela on redirige l'affichage interne du container vers l'affichage de notre ordinateur, et on autorise la connection au serveur X11 au moyen de `xhost`, comme nous pouvons le voir sur la figure [-@fig-displaypc]. Un socket est un mécanisme de communication bidirectionnelle entre des processus
+
+Puis on a essayé d'exécuter le container sur le serveur distant, mais là, un nouveau problème est venu: comment obtenir l'affichage du résultat du code s'exécutant dans le container sur un serveur distant ?
+
+Afin de résoudre ce problème, je me suis penché sur les authentifications régissant l'affichage X11.
+
+En effet, dans mon cas, je devais utiliser l'affichage de l'ordinateur du professeur tout en faisant s'exécuter le code dans un container sur un serveur distant.
+
+```{mermaid}
+%%| fig-cap: "Représentation de l'affichage d'une application graphique containerisée"
+%%| label: fig-displayserver
+%%| fig-width: 6
+flowchart LR
+    subgraph Ordinateur
+        subgraph Container
+            C[code]
+            subgraph A[affichage]
+              subgraph D[Serveur Xorg]
+                s[socket .X11-unix]
+              end
+            end
+        end
+        subgraph F[affichage]
+            subgraph G[Serveur Xorg]
+              S[socket .X11-unix]
+            end
+            B{.Xauthority}
+            E["fa:fa-error erreur affichage non autorisé !"]
+        end
+    end
+    Écran
+
+    C-->|rendu| s
+    S <-->|liaison| s
+    s -->|rendu| B
+    B --> |autorisé| S
+    B --> |non autorisé| E
+    S -->|affichage| Écran
+```
+
+
+
+
+

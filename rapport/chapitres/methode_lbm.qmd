@@ -195,7 +195,7 @@ $$
 c_{S} = \frac{1}{\sqrt{3}}\frac{\Delta \mathbf{x}}{\Delta t}
 $$ {#eq-cs}
 
-### Itération
+### Lattice Boltzmann Equation (LBE) {#sec-LBE}
 
 L'objectif est de savoir pour une fonction de distribution $f$ donnée comment celle-ci évoluera au temps $t + \Delta t$.
 
@@ -241,8 +241,8 @@ Cela est représenté dans la figure [-@fig-algo].
 Pourquoi ça marche ?
 
 - On a une "lattice symetry and isotropy"
-- On a la conservation de la masse et de la quantité de mouvement: $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$
-- Les analyses de Champman-Enskog nous montre que ce que l'on a fait (donc que LBE) est suffisant pour retrouver le comportement de Navier-Stokes.
+- La masse et la quantité de mouvement sont conservées car: $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$
+- Les analyses de Champman-Enskog [-@Champman] et [-@Enskog] montrent que les LBE [-@sec-LBE] sont suffisantes pour retrouver le comportement de Navier-Stokes.
 
 ## Avantages
 
@@ -254,37 +254,16 @@ Pourquoi ça marche ?
 
 ## Désavantages
 
-- On ne peut que simuler des "small Knudsen numbers" et des "small Mach numbers"
+- Il n'est possible de simuler que des petits nombres de Knudsen.
+  Le nombre de Knudsen décrit le régime d'écoulement d'un fluide.
+  Lorsqu'il est grand, cela signifie que les collisions entre les particules sont rares, à l'inverse de lorsqu'il est petit.
+  Donc il n'est possible de simuler que de la mécanique des fluides classique où les collisions entre les particules ne sont pas rares.
+- Il n'est également pas possible de simuler des grands nombres de Mach.
+  Le nombre de Mach représente un rapport entre la vitesse du flux d'un fluide et la vitesse du son dans le fluide.
+  Donc un petit nombre de Mach signifie que la vitesse du flux du fluide est faible par rapport à la vitesse du son, ce qui caractérise des écoulements incompressibles ou à faible compressibilité.
+  À l'inverse, un grand nombre de Mach représente les fluides où les effets de compressibilité sont important.
+  Il n'est donc possible de simuler que des fluides incompressibles ou faiblement compressibles.
 - Les conditions aux bords doivent correctement être définies.
+  En effet, les conditions aux bords définiront la cohérence et la précision du résultat.
 
-
-## Conditions aux bords
-
-Pour simuler des problèmes de différente taille, il faut bien définir les conditions aux bords...
-Les conditions aux bords sont nécessaires non seulement mathématiquement, mais aussi physiquement.
-En général, on a des approches non structurées (comme la méthode SPH), des approches structurées (comme la méthode LBM)
-Il faut faire attention car si on ne s'occupe pas bien des conditions aux bords, le résultat sera mauvais...
-
-La lattice boltzmann a un zoo pour les conditions aux bords car on a plus de variable que dans les équations de Navier-Stokes.
-Par exemple, en 3d, on a 4 champs hydrodynamiques, on a la pression et on a la vélocité qui possède 3 composantes et le stress tensor $\sigma$ qui possède 6 composantes (le stress tensor est utilisé pour déterminer ce qui se passe aux bords du fluide....). Cependant, on a plus de populations...
-On a 19 ou 27 populations, ce qui signifie que l'on a plus de liberté dans LBM que dans Navier-Stokes, mais que l'on a plus de conditions à imposer et à satisfaire...
-
-D'une manière générale, on manipule des populations $f_{i}$.
-Pour savoir ce qui se passe aux conditions, nous devons savoir ce qui vient depuis l'extérieur, donc on va se dire que l'on a un $f$ qui vient de l'extérieur, et on va essayer de déterminer ce qu'il devrait être.
-
-De nombreuses personnes se sont penchés sur le problème de condition aux bords et ils ont déterminer de nombreuses conditions aux bords, ayant chacune leur avantage et leur désavantage.
-On a notamment les Bounce-back methods (simple, interpolée, partiellement saturée), les Ghost methods (FH & MLS, GZS, Image-based) et les Immerse Boundary methods (Explicit, Direct forcing, other variants)
-
-On peut par exemple définir pour Bounce-back methode que si on passe la frontière, on a $f_{i} \rightarrow f_{\hat{i}}$ avec $c_{\hat{i}} = - c_{i}$. Ainsi, on n'ajoute pas de nouvelles informations.
-Cette méthode marche pour toute les conditions de bord en escalier, est extrêmement simple et ne possède pas d'équivalent dans les CFD (computationnal fluid dynamics)
-mais elle n'est pas très précise, il y a des artéfacts numériques et si on bouge les bords, on aura des complications
-
-Conditions de bord immersive (excellent article de Peskin en 2002 !) Un principe de base est que les frontières vont bouger avec le fluide. Cette méthode n'est pas une condition de bord, mais elle ne fait que mimer l'effet d'un bord.
-
-Avantages: pas besoin d'inclure des conditions de bord réelles, l'effet sur le fluide est complètement inclus avec les forces externes, fonctionne pour des bords de n'importe quelle forme
-
-Désavantages: impact sur la précision due à diffuse interface method, le fluide existe à l'intérieur des bords, plus difficile pour les conditions limites autres que l'absence de glissement...
-
-Comme on n'a pas d'équation de poisson à résoudre, lbm est utile pour le calcul haute performance
-
-Explications prise de cette vidéo: @Krueger2.
+Ces explications ont essentiellement été tirées du travail du Dr. Moritz Lehmann [-@Lehmann], qui est l'auteur de FluidX3D, mais également du travail et des explications de Krüeger [-@Krueger] et [-@Krueger2].
