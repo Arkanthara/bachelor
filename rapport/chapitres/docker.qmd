@@ -64,41 +64,68 @@ C'est alors que la containerisation a pris toute son importance dans mon projet 
 
 En effet, l'objectif était alors de mettre le code dans un container qui s'exécutera sur le serveur distant du professeur afin de lui montrer mes problèmes et de pouvoir directement essayer des solutions.
 
-Je me suis donc penché sur la containerisation, et j'ai réussi à créer un container qui était capable d'exécuter le code et de me donner le résultat qui est un résultat visuel de simulation de fluide.
+L'idée est d'exécuter un container et d'afficher le résultat graphique du container.
 
-```{mermaid}
-%%| fig-cap: "Représentation de l'affichage d'une application graphique containerisée"
-%%| label: fig-displaypc
-%%| fig-width: 6
-flowchart LR
-    subgraph Ordinateur
-        subgraph Container
-            C[code]
-            subgraph A[affichage]
-              subgraph D[Serveur Xorg]
-                s[socket .X11-unix]
-              end
-            end
-        end
-        subgraph F[affichage]
-            subgraph G[Serveur Xorg]
-              S[socket .X11-unix]
-            end
-            B{xhost}
-            E["fa:fa-error erreur affichage non autorisé !"]
-        end
-    end
-    Écran
+Pour cela, il faut comprendre les mécanismes régissant l'affichage X11.
 
-    C-->|rendu| s
-    S <-->|liaison| s
-    s -->|rendu| B
-    B --> |autorisé| S
-    B --> |non autorisé| E
-    S -->|affichage| Écran
+## Affichage X11
+
+L'affichage X11 est composé notamment de:
+
+- Un serveur Xorg ou X11 qui gère l'affichage et les périphériques d'entrée tel que la souris et le clavier.
+- Des "magic cookies" qui sont des jetons d'authentifications permettant d'accéder au serveur X11.
+  Ils utilisent le hostname et le numéro d'affichage afin de composer un identifiant pour le jeton d'accès.
+  Dans l'exemple de "magic cookies" suivant, lizzy est le hostname de mon ordinateur, combiné avec le type de connection utilisée (dans notre cas, le type de connection est unix) et le numéro d'affichage.
+
+```{python}
+!xauth list | head -n 2
 ```
+- Une variable d'environnement ´$DISPLAY´ utilisée afin de localiser le serveur X11.
+La variable d'environnement est composée de la sorte: `hostname:numéro_d_affichage.numéro_du_serveur_X11`
+
+  - Le hostname indique le nom du host où se trouve le serveur X11.
+  - Le numéro d'affichage indique où l'application devra être affichée.
+  - Le numéro du serveur X11 est utile s'il y a plusieurs serveurs X11 qui tournent sur une machine.
+
+  Il est possible que la variable `$DISPLAY` soit sous la forme `:0.0`.
+  Dans ces conditions, cela signifie que l'affichage se fera sur le serveur X11 local, ce qui peut également s'écrire comme `localhost:0.0`.
+
+## Affichage d'un container sur ordinateur
 
 Le principe est simple: on connecte le socket du serveur d'affichage X11 au socket d'affichage du container, comme cela on redirige l'affichage interne du container vers l'affichage de notre ordinateur, et on autorise la connection au serveur X11 au moyen de `xhost`, comme nous pouvons le voir sur la figure [-@fig-displaypc]. Un socket est un mécanisme de communication bidirectionnelle entre des processus
+
+```{mermaid}
+%%| fig-cap: "Shéma de l'affichage d'une application graphique tournant dans un container sur un ordinateur"
+%%| label: fig-displaypc
+%%| fig-width: 6
+flowchart TD
+subgraph Ordinateur
+    subgraph X[Container]
+        subgraph A1[Serveur X11]
+            S1[.X11-unix socket]
+            C1[magic cookies]
+        end
+    end
+    subgraph A[Serveur X11]
+        H[hostname]
+        S[.X11-unix socket]
+        C[magic cookies]
+        D[$DISPLAY]
+    end
+end
+E[Écran]
+
+
+
+
+S ---|partagé| S1
+C --- |partagé|C1
+S --> |affichage|E
+H --> |donné à l'exécution|X
+D --> |donné à l'exécution|X
+H --> |autentification|C
+```
+## Affichage d'un container sur serveur distant
 
 Puis on a essayé d'exécuter le container sur le serveur distant, mais là, un nouveau problème est venu: comment obtenir l'affichage du résultat du code s'exécutant dans le container sur un serveur distant ?
 
@@ -107,35 +134,40 @@ Afin de résoudre ce problème, je me suis penché sur les authentifications ré
 En effet, dans mon cas, je devais utiliser l'affichage de l'ordinateur du professeur tout en faisant s'exécuter le code dans un container sur un serveur distant.
 
 ```{mermaid}
-%%| fig-cap: "Représentation de l'affichage d'une application graphique containerisée"
+%%| fig-cap: "Shéma de l'affichage d'une application graphique tournant dans un container sur un serveur distant"
 %%| label: fig-displayserver
 %%| fig-width: 6
-flowchart LR
-    subgraph Ordinateur
-        subgraph Container
-            C[code]
-            subgraph A[affichage]
-              subgraph D[Serveur Xorg]
-                s[socket .X11-unix]
-              end
-            end
-        end
-        subgraph F[affichage]
-            subgraph G[Serveur Xorg]
-              S[socket .X11-unix]
-            end
-            B{.Xauthority}
-            E["fa:fa-error erreur affichage non autorisé !"]
+flowchart TD
+subgraph Ordinateur
+    subgraph a[Serveur X11]
+        s[.X11-unix socket]
+        t[TCP socket]
+    end
+end
+subgraph Serveur
+    subgraph X[Container]
+        subgraph A1[Serveur X11]
+            S1[.X11-unix socket]
+            C1[magic cookies]
         end
     end
-    Écran
+    subgraph A[Serveur X11]
+        H[hostname]
+        S[.X11-unix socket]
+        T[TCP socket]
+        C[magic cookies]
+    end
+end
+E[Écran]
 
-    C-->|rendu| s
-    S <-->|liaison| s
-    s -->|rendu| B
-    B --> |autorisé| S
-    B --> |non autorisé| E
-    S -->|affichage| Écran
+t <-->|Conenction ssh|T
+s <-->|gérée par ssh|t
+S <-->|socat|T
+S ---|partagé| S1
+C --- |partagé|C1
+s --> |affichage|E
+H --> |donné à l'exécution|X
+H --> |autentification|C
 ```
 
 
