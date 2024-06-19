@@ -1,4 +1,4 @@
-# Méthode SPH
+# Méthode SPH {#sec-methode-sph}
 
 ## Histoire
 

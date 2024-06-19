@@ -1,0 +1,89 @@
+# GVDB-Voxel VS FluidX3D
+
+## Introduction
+
+Après avoir vu la théorie sur la méthode SPH [-@sec-methode-sph] et la méthode LBM [-@sec-methode-lbm], nous pouvons procéder à une comparaison entre deux codes implémentant chacun une des méthodes.
+
+- Le premier code est le code de GVDB-Voxel [](https://github.com/NVIDIA/gvdb-voxels) implémentant la méthode SPH
+- Le deuxième code est le code de FluidX3D [](https://github.com/ProjectPhysX/FluidX3D) implémentant la méthode LBM
+
+Comme cela avait été mentionné précédement, le code de GVDB-Voxel n'a pas été maintenu depuis au moins 4 ans, ce qui a donné des problèmes d'incompatibilité entre les versions des librairies et le code, à la différence du code de FluidX3D qui est en cours de développement par le Dr Moritz Lehmann, dont le projet de master a servi à la compréhension de la méthode LBM.
+
+Les deux codes proposés présentent chacun des caractéristiques différentes, tant par la méthode utilisée pour simuler en temps réel des fluides que par les outils et technologies utilisées.
+
+Dans la suite du travail, l'objectif sera de comparer ces deux codes.
+
+## Comparaison théorique
+
+Le code de GVDB-Voxel implémente, comme mentionné précédement, la méthode SPH alors que le code de FluidX3D implémente la méthode LBM.
+
+Ces deux méthodes ont une façon totalement différente d'approcher le problème de la simulation de fluides.
+
+### Approche utilisée
+
+La méthode SPH tente une approximation directe des équations de Navier-Stokes [-@sec-NSE] tandis que la méthode LBM utilise l'équation de Boltzmann [-@sec-BE] afin de retrouver le comportement des équations de Navier-Stokes [-@sec-NSE], autrement dit, la méthode LBM résoud indirectement les équations de Navier-Stokes.
+Ce qui lui permet, à la différence de la méthode SPH, d'intégrer relativement facilement des effets thermiques grâce à l'utilisation des fonctions de distribution pour les énergies.
+
+En utilisant l'équation de Boltzmann [-@sec-BE], la méthode LBM possède un plus grand nombre de paramètres que les méthodes résolvant directement les équations de Navier-Stokes, car la vélocité de chaque groupe de particules ou population est prise en compte.
+Cependant, cela permet de ne pas avoir à résoudre directement les équations de Navier-Stokes, ce qui en fait une méthode rapide car aucune équation de poisson n'est à résoudre,
+et cela permet également de simuler des fluides à micro-échelle où les interactions moléculaires sont significatives.
+
+### Maillage
+
+La méthode SPH est une méthode sans maillage alors que la méthode LBM est composée d'un maillage.
+Cela permet à la méthode SPH de définir un domaine adaptatif qui varie en fonction des besoins de la simulation à la différence de la méthode LBM qui possède un domaine fixe.
+Un autre avantage conféré à la méthode SPH par cet absence de maillage est une facilité d'adaptation à des changements topologiques comme la fragmentation ou la fusion de fluides, et une simplicité de définition des conditions aux frontières, bien que cela reste toujours très complexe afin d'obtenir de bons résultats.
+Cependant, la méthode LBM est également capable de gérer des frontières complexes, comme des frontières en mouvement ou des géométries complexes grâce à sa localité qui lui permet également une flexibilité sur la définition des conditions aux limites.
+
+Mais la méthode SPH possède plus de difficultés à traiter des conditions aux limites solides car cela peut nécessiter des techniques spéciales afin de modéliser l'interaction entre le fluide et la surface solide, ce qui n'est pas très complexe dans le cas d'une méthode avec un maillage.
+
+Il résulte néanmoins du fait que la méthode LBM soit une méthode avec maillage que la précision est dépendante du maillage choisi, bien qu'il existe des méthodes de raffinement de maillage ou de grille adaptative afin de palier à ce problème.
+
+### Phénomènes physiques
+
+La méthode LBM perd en efficacité dans les simulations d'écoulements à haute vitesse ou d'écoulements compressibles, car des corrections doivent être faites afin de prendre en compte les écoulements haute vitesse, ce qui complexifie l'implémentation.
+Mais la méthode SPH n'est également pas très efficace dans les simulations d'écoulements à haute vitesse, car cela requiert un nombre plus élevé de particules, et donc de temps de calcul, de mémoire...
+Cependant la méthode SPH est très efficace pour simuler des phénomènes avec des variations rapides de densité et de pression, comme des explosions ou des fluides compressibles.
+
+Comme vu précédement, la méthode SPH est également utilisée pour la simulation d'explosions, de fragmentation de matériaux, d'impact haute vitesse...
+La méthode LBM ne permet pas de faire cela, cependant, elle possède des applications multi-physiques tel que les écoulements multiphasiques comme les interactions entre fluides immiscibles, les interactions entre fluide et structure déformable ou rigide, les transfert de chaleur, les réactions chimiques et la combustion dans les fluides, les écoulements à petite échelle...
+
+À la différence de la méthode SPH, la méthode LBM permet également de simuler des fluides non newtoniens.
+
+## Comparaison pratique
+
+### Performances
+
+#### Calcul parallèle
+
+La méthode LBM, comme vu dans la section [-@sec-lbm-algo], permet de facilement séparer les étapes permettant de calculer le comportement du fluide.
+
+En effet, la méthode LBM est locale et les calculs de propagation et de collision peuvent être fait localement, indépendemment, sur chaque partie du maillage.
+
+Ainsi, il en résulte que la méthode LBM est particulièrement adaptée au calcul parallèle et hautement scalable car lorsque la puissance de calcul augmente, l'overhead, qui est une mesure de la puissance de calcul inutilisée, reste à peu près constant.
+
+La caractéristique d'être hautement parallélisable et scallable rend cette méthode très attractive de nos jours.
+
+La méthode SPH est également adaptée au calcul parallèle.
+
+En effet, la méthode SPH représente le fluide comme un ensemble de particules qui interagissent entre elles.
+Cependant elles n'interagissent pas avec toutes les particules mais seulement avec des particules dans un certain rayon défini lors de l'initialisation de la simulation, comme l'image [-@fig-W] peut illustrer.
+Ainsi, grâce à la localité des interactions entre particules, il est possible de diviser le calcul entre de nombreuses unités de calculs, ce qui signifie que la méthode SPH est également adaptée au calcul parallèle et est également scallable.
+
+#### Utilisation de la mémoire
+
+L'utilisation de la mémoire est un aspect crutial dans les deux méthodes.
+
+En effet, la méthode SPH doit stocker un grand nombre de particules possédant chacune des caractéristiques telle que sa position, sa vitesse et la méthode LBM doit stocker pour chaque noeud du maillage plusieurs distributions de vitesse.
+
+Ainsi, l'aspect de l'utilisation de mémoire est un défi dans les deux méthodes et doit être optimisé afin d'obtenir des codes efficaces.
+Effectivement, si l'utilisation de la mémoire n'est pas obtimisé, il est possible que des simulations à haute résolution dépassent la capacidé de mémoire de la machine sur laquelle elle s'exécute.
+
+Mais pour les deux codes proposés, l'utilisation de la mémoire est correctement gérée.
+
+### Technologies utilisées
+
+Les deux implémentations des méthodes LBM et SPH diffèrent quant à l'utilisation des technologies.
+
+En effet, la méthode LBM utilise 
+

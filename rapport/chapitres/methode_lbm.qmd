@@ -1,4 +1,4 @@
-# Méthode LBM
+# Méthode LBM {#sec-methode-lbm}
 
 ## Histoire {#sec-lbmh}
 
@@ -227,7 +227,7 @@ $$
 $$ {#eq-visc}
 
 
-### Algorithme
+### Algorithme {#sec-lbm-algo}
 
 - La condition initiale $f_{i}$ est connue. Ainsi, il est possible de calculer la densité et la vélocité par la somme des moments de $f$.
 - La distribution équilibrée peut donc être calculée grâce à la condition initiale $f_{i}$ car elle ne dépend que de la densité et de la vélocité, qui ont pu être calculé précédement.

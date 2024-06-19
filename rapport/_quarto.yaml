@@ -16,7 +16,7 @@ book:
     - part: "Résultats"
       chapters:
         - chapitres/docker.qmd
-        - chapitres/initial_condition.md
+        - chapitres/initial_condition.qmd
 
 bibliography: references.bib
 
