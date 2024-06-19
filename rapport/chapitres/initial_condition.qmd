@@ -1,4 +1,4 @@
-# GVDB-Voxel VS FluidX3D
+# LBM VS SPH
 
 ## Introduction
 
@@ -50,7 +50,7 @@ La méthode LBM ne permet pas de faire cela, cependant, elle possède des applic
 
 À la différence de la méthode SPH, la méthode LBM permet également de simuler des fluides non newtoniens.
 
-## Comparaison pratique
+## Comparaison technologique
 
 ### Performances
 
@@ -83,7 +83,85 @@ Mais pour les deux codes proposés, l'utilisation de la mémoire est correctemen
 
 ### Technologies utilisées
 
-Les deux implémentations des méthodes LBM et SPH diffèrent quant à l'utilisation des technologies.
+Les deux implémentations des méthodes LBM et SPH sont basées sur du C++, mais elles diffèrent quant à l'utilisation des technologies.
 
-En effet, la méthode LBM utilise 
+La méthode LBM utilise la librairie OpenCL alors que la méthode SPH utilise la librairie CUDA de Nvidia.
+Cependant, d'après le travail [-@OpenCL] du Dr Moritz Lehmann, les deux librairies sont aussi rapides sur GPU Nvidia si OpenCL est correctement utilisé.
+
+Cela signifie donc que FluidX3D possède l'avantage, comparé au code de GVDB-Voxel, de pouvoir tourner sur tous les GPUs, et d'être aussi rapide sur GPU Nvidia que s'il avait été implémenté en CUDA.
+
+Donc de ce côté, il y a des différences, mais les deux technologies s'équivalent.
+
+La méthode SPH est implémentée au moyen de la technologie Nvidia GVDB-Voxel.
+Elle utilisait OptiX pour le raytracing, qui a été supprimé en faveur du raytracing intégré de CUDA en raison de la difficulté de trouver la bonne librairie afin de faire tourner le code.
+
+#### GVDB-Voxel
+
+La technologie GVDB-Voxel a été développée vers 2018 pour le calcul, la gestion, la simulation et le rendu de données volumétriques éparses à grande échelle sur des GPUs Nvidia.
+Elle est uniquement dépendante de CUDA.
+
+Les données volumétriques éparses sont des données volumétriques, représentant un volume dans l'espace, qui ne sont pas uniformément denses dans l'espace, ce qui signifie qu'il peut y avoir des régions avec beaucoup de données et des régions avec peu de données.
+
+Basée sur la technologie OpenVDB, GVDB-Voxel tente de représenter les données volumétriques éparses d'une manière efficace.
+
+Pour cela, la technologie est basée sur une structure de grille hiérarchique.
+
+##### Grille hiérarchique
+
+La structure de la grille hiérarchique est donnée à l'initialisation du programme.
+Elle déterminera le nombre de voxels total qui pourra être utilisé.
+
+La grille est composée de:
+
+- voxels: ce sont les plus petites unités de données volumétriques.
+Cela correspond à un pixel, mais en 3 dimensions.
+- bricks ou blocs: ce sont des collections de voxels. On les appelle bricks ou blocs car ce sont des petit cubes de voxels, généralement de taille fixe.
+Les bricks rendent l'accès plus facile et plus rapide aux voxels, ce qui permet une meilleure gestion des données.
+- Nodes ou noeuds: ce sont des pointeurs vers d'autres noeuds ou vers des bricks.
+Ils sont utilisés afin de pouvoir organiser les bricks d'une manière hiérarchique.
+Il peut y avoir plusieurs niveau de noeuds, ce qui permet de diviser l'espace volumétrique en régions aussi petites que l'on souhaite.
+
+Ces composants sont illustrés dans la figure [-@fig-composants] pris de la documentation de GVDB-Voxel [-@GVDB] avec en bleu les voxels, en vert les bricks et en rouge les nodes.
+
+![Grille hiérarchique [-@GVDB]](../images/composants.png){#fig-composants width=75%}
+
+L'implémentation concrête de cette hiérarchie peut se faire en liste de noeuds possédant une liste d'enfants qui pointent soit vers des bricks, soit vers d'autres noeuds, et ainsi de suite, comme le montre la figure [-@fig-hierarchie].
+
+L'objectif est maintenant de stocker toutes ces données d'une manière efficace dans la mémoire du gpu afin d'avoir des accès rapides aux données, ce qui est crucial lorsque l'on souhaite obtenir des performances car les accès à la mémoire sont très coûteux.
+
+Pour ce faire, la technologie GVDB-Voxel utilise des atlas, qui sont des structures de données créées afin d'optimiser le stockage et l'accès aux bricks.
+
+Un atlas est donc composé de bricks qui sont dynamiquement allouées lors de l'exécution.
+Il possède une taille maximale déterminée à la compilation et un type de donnée qu'il peut stocker.
+Les bricks sont indexés en fonction de leurs coordonnées dans l'espace, ce qui permet un accès direct et rapide aux données.
+Par exemple, si un voxel possédant des coordonnées données est recherché, il est possible de trouver directement l'index de l'atlas dans lequel le voxel se trouve grâce à un masque.
+
+Comme le montre la figure [-@fig-atlas-3], un atlas stocke les bricks d'une manière contigüe en mémoire, ce qui rend les données facilement gérables et accessibles et les transferts de donnée plus facile et rapide, par exemple entre le CPU et le GPU lors de calculs.
+
+De plus, lorsque des bricks sont désallouées, l'atlas peut directement réutiliser l'espace laissé vide pour d'autres bricks, ce qui optimise la quantité de mémoire utilisée.
+
+Comme le montre la figure [-@fig-atlas], l'atlas ne stocke pas seulement les bricks, mais également les apron voxels qui sont les voxels voisins de la bricks stockée afin d'éviter les communications entre les unités computationnelles lors d'un calcul parallèle nécessitant des calculs de voisinage, car les données dont ils ont besoin se trouvent dans les apron voxels.
+
+![Atlas et stockage des bricks [-@GVDB]](../images/atlas.png){#fig-atlas width=70%}
+
+Ainsi, peu de communications entre les unités de calculs sont nécessaires, mais peu de données sont stockées, à la différence des données volumétriques denses qui permettent un calcul rapide avec accès facile aux voisins d'un voxel, mais qui n'optimisent pas du tout la quantité de mémoire utilisée, comme le montre la figure [-@fig-atlas-mem].
+
+![Différence entre donnée volumétrique éparse et dense lors d'un calcul [-@GVDB]](../images/atlas-mem.png){#fig-atlas-mem width=40%}
+
+Les atlas peuvent être utilisés pour stocker différentes informations, telle que les couleurs ou la densité, comme la figure [-@fig-atlas-2] le montre.
+
+Ainsi, l'accès aux informations est rapide et facile.
+Par exemple, si un besoin de connaître la densité de telle région du volume se présente, il suffit de chercher dans l'atlas correspondant au canal densité à l'index donné par les coordonnées de la région étudiée appliqué à un masque car toute la coordonnée n'est pas nécessaire pour localiser la bricks, sinon il n'y aurait aucune utilité à créer des bricks qui sont des groupes de voxels.
+
+En résumé, un atlas est un espace de stockage de bricks gérant efficacement la mémoire, facilitant l'accès aux données et permettant d'éviter des communications entre les unités computationnelles lors de calculs nécessitant les informations de voisinage.
+
+::: {layout-ncol=2}
+
+![Multiples atlas pour stocker des canaux [-@GVDB]](../images/atlas-2.png){#fig-atlas-2}
+
+![Shéma représentant un atlas](../images/atlas-3.png){#fig-atlas-3 width=60%}
+
+:::
+
+![Représentation de l'implémentation de la structure de grille hiérarchique](../images/hierarchie.png){#fig-hierarchie}
 
