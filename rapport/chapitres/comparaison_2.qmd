@@ -1,0 +1,177 @@
+# Comparaison entre les résultats
+
+Dans ce chapitre, une comparaison entre les deux codes est proposée.
+Afin de faire un petit rappel, on a comme code:
+
+- GVDB-Voxel: ce code est une implémentation de la méthode SPH en tirant profil des technologies de Nvidia
+- FluidX3D: ce code est une implémentation de la méthode LBM en utilisant OpenCL, ce qui rend le code exécutable sur tous les GPUs.
+
+La comparaison a donc impliqué d'essayer de faire des exemples similaires afin de pouvoir comparer au mieux les deux implémentations des méthodes.
+
+La stabilité numérique des deux méthodes SPH et LBM repose principalement sur l'initialisation de celles-ci, c'est pourquoi la recherche des paramètres rendant les deux méthodes identiques est un problème très complexe.
+
+## Initialisation de la simulation
+
+La condition initiale joue un rôle crucial dans la comparaison des deux codes car l'objectif est de comparer les deux codes grâce à la modélisation du même phénomène physique.
+La première idée était de modéliser une goutte, en forme de cube car plus facile à définir, tombant dans un bassin d'eau, comme il est possible de voir sur la figure [-@fig-idee-1].
+
+![Idée initiale](../images/idee-1.png){#fig-idee-1}
+
+À cet exemple, le travail a montré que la définition d'un bac d'eau était presque impossible dans l'implémentation de la méthode SPH, car celle-ci possède des instabilités au niveau des bords du domaine, c'est pourquoi le fluide implosait ou s'éparpillait en volant dans tout le domaine, comme il est possible de voir sur la figure [-@fig-problem-1].
+En plus du phénomène d'implosion, le code s'arrêtait au bout d'un petit moment à cause d'accès illégaux à la mémoire.
+
+::: {#fig-problem-1 layout-ncol=2}
+
+![Condition initiale](../images/problem-1-1.png)
+
+![Implosion](../images/problem-1-2.png){width=86%}
+
+Difficulté de définir un bac d'eau
+:::
+
+Face à ces difficultés, la solution finale a été de renoncer à cette comparaison qui aurait été idéale car elle aurait permis de faire varier la quantité d'eau dans le bac, permettant de voir à quel point le code avec domaine adaptatif était avantagé comparé à l'autre code qui aurait eu plus de peine à tourner pour un bac très rempli d'eau car il aurait dû calculer ce qui se passe au fond du bac, ce qui n'aurait pas été le cas du code avec domaine adaptatif.
+
+C'est pourquoi l'exemple choisi est un exemple fonctionnel modifié de la méthode SPH.
+
+Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-@fig-sequence] présente en annexe.
+Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-@fig-sequence] est tirée de FluidX3D.
+Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait des vagues dans le bac, mais celle-ci a été supprimée afin de pouvoir avoir le même exemple dans les deux codes.
+
+Comme le code GVDB est conçu pour modéliser des simulations à grande échelle comme l'océan par exemple et que le code de FluidX3D est plus dans le domaine du mètre, les deux exemples ne sont théoriquement pas identiques, c'est pourquoi les paramètres ont été définis afin que les deux codes donnent visuellement les mêmes résultats.
+
+### Moments clés
+
+Lors de la simulation, 2 moments clés ont été défini.
+Le premier moment clé est utilisé afin d'ajuster la viscosité pour avoir un résultat similaire et le deuxième moment clé indique la fin de la simulation, comme il est possible de voir sur la figure [-@fig-key].
+
+:::{#fig-key layout-ncol=2}
+
+![](../images/gvdb-voxel-key-1.png)
+
+![](../images/case_2_key_1.PNG)
+
+![](../images/gvdb-voxel-key-2.png)
+
+![](../images/case_2_key_2.PNG)
+
+Moments clés
+:::
+
+Sur la figure [-@fig-key], il est possible de remarquer que le volume d'eau n'est pas le même dans le code de GVDB que dans le code de FluidX3D.
+En effet, le fluide s'écrase et se compresse systématiquement sur GVDB-Voxel, comme montré sur la figure [-@fig-compress].
+
+:::{#fig-compress layout-ncol=2}
+
+![Initialisation](../images/compress-init.png)
+
+![Compression](../images/compress-final.png)
+
+Phénomène de compression dans GVDB
+:::
+
+Afin de résoudre le phénomène de compression, un jeu sur de nombreux paramètres du code de GVDB-Voxel, tel que sur la taille des particules, l'espacement, la densité, etc, a été effectué, mais sans succès.
+
+C'est pourquoi les deux exemples ne sont pas identiques, mais cependant très similaires.
+
+## Exécution des codes
+
+Dans cette partie, l'objet d'étude sera l'exécution des deux codes.
+
+Les deux codes donnent une visualisation en temps réelle, c'est à dire que le rendu est fait en même temps que le calcul de la simulation.
+
+Afin d'évaluer les performances des deux codes, un script bash a été créé afin de reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
+
+À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
+Mes suppositions à l'heure actuelle sont que Nvidia utilise X11 avec Xinemara qui est une autre version de XrandR, rendant l'affichage incompatible avec mon ordinateur linux.
+La solution n'étant pas trouvée, l'enregistrement des performances s'est fait sous Windows pour le code de FluidX3D.
+
+Cela ne devait pas être trop problématique car les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
+Cependant, il a fallut traduire le script bash en script powershell, ce qui s'est fait avec l'aide de ChatGPT et des discussions sur les forums et les blogs.
+
+Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profil du rapport.
+
+Les résultats obtenus sont alors donnés sur les figures [-@fig-result-FluidX3D] et [-@fig-result-GVDB].
+
+```{python}
+#| echo: false
+#| label: fig-result-FluidX3D
+#| fig-cap: Résultats de FluidX3D
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Lire les données du fichier CSV
+log_file = "../../../FluidX3D/logs/usage_stats_5.csv"
+df = pd.read_csv(log_file)
+
+# Afficher les premières lignes pour vérifier le contenu
+#print(df.head())
+
+# Convertir la colonne 'Timestamp' en datetime
+df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+
+# Calculer les secondes depuis le début
+start_time = df["Timestamp"].iloc[0]
+df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
+
+# Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
+plt.figure(figsize=(14, 7))
+plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
+# plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
+plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
+plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
+plt.plot(
+    df["Seconds_Since_Start"],
+    df["GPU_Memory_Usage(%)"],
+    label="Utilisation Mémoire GPU (%)",
+)
+plt.xlabel("Temps (secondes)")
+plt.ylabel("Utilisation (%)")
+plt.title(
+    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU et de la RAM"
+)
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+```{python}
+#| echo: false
+#| label: fig-result-GVDB
+#| fig-cap: "Résultats de GVDB Voxel"
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Lire les données du fichier CSV
+log_file = "../../../gvdb-voxels/logs/usage_stats_2.csv"
+df = pd.read_csv(log_file)
+
+# Afficher les premières lignes pour vérifier le contenu
+# print(df.head())
+
+# Convertir la colonne 'Timestamp' en datetime
+df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+
+# Calculer les secondes depuis le début
+start_time = df["Timestamp"].iloc[0]
+df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
+
+# Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
+plt.figure(figsize=(14, 7))
+plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
+# plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
+plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
+plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
+plt.plot(
+    df["Seconds_Since_Start"],
+    df["GPU_Memory_Usage(%)"],
+    label="Utilisation Mémoire GPU (%)",
+)
+plt.xlabel("Temps (secondes)")
+plt.ylabel("Utilisation (%)")
+plt.title(
+    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU et de la RAM"
+)
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+

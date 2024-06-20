@@ -16,7 +16,8 @@ book:
     - part: "Résultats"
       chapters:
         - chapitres/docker.qmd
-        - chapitres/initial_condition.qmd
+        - chapitres/comparaison_1.qmd
+        - chapitres/comparaison_2.qmd
 
 bibliography: references.bib
 
