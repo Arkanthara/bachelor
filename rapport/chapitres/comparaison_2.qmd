@@ -1,9 +1,9 @@
 # Comparaison entre les résultats
 
 Dans ce chapitre, une comparaison entre les deux codes est proposée.
-Afin de faire un petit rappel, on a comme code:
+Afin de faire un petit rappel, on a comme code :
 
-- GVDB-Voxel: ce code est une implémentation de la méthode SPH en tirant profil des technologies de Nvidia
+- GVDB-Voxel: ce code est une implémentation de la méthode SPH en tirant profit des technologies de Nvidia
 - FluidX3D: ce code est une implémentation de la méthode LBM en utilisant OpenCL, ce qui rend le code exécutable sur tous les GPUs.
 
 La comparaison a donc impliqué d'essayer de faire des exemples similaires afin de pouvoir comparer au mieux les deux implémentations des méthodes.

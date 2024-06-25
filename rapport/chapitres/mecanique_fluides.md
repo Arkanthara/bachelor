@@ -3,11 +3,11 @@
 Un fluide est composé de nombreuses particules, qui peuvent autant être des atomes que des ions ou encore des molécules, qui sont des atomes liés entre eux par des liaisons fortes ou covalentes.
 À la différence d'un solide, un fluide est complètement déformable.
 
-Il existe différent types de fluides, notamment:
+Il existe différents types de fluides, notamment :
 
-- les gaz: ce sont des fluides composés de particules isolées mouvant en toute liberté et pouvant entrer en collision.
-- les liquides: ce sont des fluides composés de particules liées entre elles par des liaisons faibles, comme les liaisons hydrogène.
-Les particules ne peuvent donc pas se mouvoir en toute liberté, et lorsqu'une particule bouge, elle exerce une influence sur les autres particules liées à elle.
+- les gaz : ce sont des fluides composés de particules isolées se déplaçant en toute liberté et pouvant entrer en collision.
+- les liquides : ce sont des fluides composés de particules liées entre elles par des liaisons faibles, comme les liaisons hydrogène.
+Ces particules ne peuvent donc pas se mouvoir en toute liberté, et lorsqu'une particule bouge, elle exerce une influence sur les autres particules liées à elle.
 
 ## Variables
 
@@ -41,12 +41,12 @@ L'équation de continuité peut être définie comme dans l'équation [-@eq-econ
 
 $$\frac{\partial}{\partial t} \rho + \nabla (\rho \mathbf{v}) = 0$$ {#eq-econt}
 
-avec:
+avec :
     
-- $\frac{\partial}{\partial t} \rho$ nous donne la variation de la masse par unité de volume en fonction du temps
-- $\nabla (\rho \mathbf{v})$ est le flux de masse. Il nous indique comment la masse se déplace et se redistribue dans le volume
+- $\frac{\partial}{\partial t} \rho$ nous donne la variation de la masse par unité de volume en fonction du temps.
+- $\nabla (\rho \mathbf{v})$ est le flux de masse. Il nous indique comment la masse se déplace et se redistribue dans le volume.
 
-Dans l'équation [-@eq-econt], nous pouvons voir que la variation de la masse doit être égale au flux de masse du fluide. Cela signifie que la masse du fluide suit le principe de conservation de la matière
+Dans l'équation [-@eq-econt], nous pouvons voir que la variation de la masse doit être égale au flux de masse du fluide. Cela signifie que la masse du fluide suit le principe de conservation de la matière.
 
 ### Équation de la quantité de mouvement
     
@@ -54,13 +54,13 @@ L'équation de la quantité de mouvement est définie dans l'équation [-@eq-emo
 
 $$\frac{\partial}{\partial t}(\rho \mathbf{v}) + \nabla \cdot \left(\rho \mathbf{v} \mathbf{v}^T \right) = - \nabla p  + \rho \cdot F $$ {#eq-emouv}
 
-avec:
+avec :
 
-- $\rho \cdot F$ nous donne l'ensemble des forces externes s'appliquant par unité de volume
-- $\nabla \cdot \left(\rho \mathbf{v} \mathbf{v}^T \right)$ représente le changement de vitesse dû au mouvement du fluide
-- $\frac{\partial}{\partial t}(\rho \mathbf{v})$ est la variation temporelle de la quantité de mouvement 
+- $\rho \cdot F$ nous donne l'ensemble des forces externes s'appliquant par unité de volume.
+- $\nabla \cdot \left(\rho \mathbf{v} \mathbf{v}^T \right)$ représente le changement de vitesse dû au mouvement du fluide.
+- $\frac{\partial}{\partial t}(\rho \mathbf{v})$ est la variation temporelle de la quantité de mouvement.
 
-Dans l'équation [-@eq-emouv], il y a d'une part la variation temporelle de la quantité de mouvement plus la répartition de la quantité de mouvement dans le fluide, et de l'autre part la force résultant des variations de la pression plus les autres forces externes. On peut donc reconnaître la 2ème loi de Newton disant que la quantité de mouvement est égal à la somme des forces.
+Dans l'équation [-@eq-emouv], il y a d'une part la variation temporelle de la quantité de mouvement plus la répartition de la quantité de mouvement dans le fluide, et de l'autre part la force résultant des variations de la pression plus les autres forces externes. On peut donc reconnaître la 2ème loi de Newton disant que la quantité de mouvement est égale à la somme des forces.
 
 ### Équation de l'énergie
 
@@ -70,19 +70,19 @@ L'équation de l'énergie est alors donnée par l'équation [-@eq-eener].
 
 $$\frac{\partial}{\partial t} \rho E + \nabla \cdot (\rho E \mathbf{v}) = - \nabla \cdot (p\mathbf{v}) + \rho F \mathbf{v}$$ {#eq-eener}
 
-avec:
+avec :
 
 - $\frac{\partial}{\partial t} \rho E$ est la variation temporelle de l'énergie par unité de volume.
-- $\nabla \cdot (\rho E \mathbf{v})$ nous donne le flux d'énergie à travers le fluide, donc comment l'énergie est transportée dans le fluide
-- $- \nabla \cdot (p\mathbf{v})$ est le travail de la pression sur le fluide
-- $\rho F \mathbf{v}$ est le travail des forces extérieures sur le fluide
+- $\nabla \cdot (\rho E \mathbf{v})$ nous donne le flux d'énergie à travers le fluide, donc comment l'énergie est transportée dans le fluide.
+- $- \nabla \cdot (p\mathbf{v})$ est le travail de la pression sur le fluide.
+- $\rho F \mathbf{v}$ est le travail des forces extérieures sur le fluide.
 
-Dans l'équation [-@eq-eener], il y a d'une part la somme entre la variation et le flux d'énergie, et d'autre part la somme du travail des forces s'exerçant sur le fluide. Cela découle du principe de conservation d'énergie: la somme du travail des forces est égale à l'énergie du fluide.
+Dans l'équation [-@eq-eener], il y a d'une part la somme entre la variation et le flux d'énergie, et d'autre part la somme du travail des forces s'exerçant sur le fluide. Cela découle du principe de conservation d'énergie : la somme du travail des forces est égale à l'énergie du fluide.
 
 ## Équations de Navier-Stokes {#sec-NSE}
 
 Les équations de Navier-Stokes sont basées sur les équations d'Euler [-@sec-EE].
-Elles y ajoutent la notion de viscosité, qui représente les forces de friction interne au fluide.
+Elles y ajoutent la notion de viscosité, qui représente les forces de friction internes du fluide.
 Elles permettent donc de modéliser des fluides réels visqueux à la différence des équations d'Euler [-@sec-EE] qui modélisent des fluides parfaits.
 
 Il y a également 3 équations de Navier-Stokes.
@@ -101,7 +101,7 @@ $$
 = - \nabla p  + \nabla \Sigma +  \rho \cdot F
 $$ {#eq-nmouv}
 
-- $\nabla \Sigma$ est la force exerçée par la viscosité du fluide
+- $\nabla \Sigma$ est la force exerçée par la viscosité du fluide.
 
 Dans l'équation [-@eq-nmouv], la force exercée par la viscosité a été ajoutée à la somme des forces de l'équation [-@eq-emouv] d'Euler.
 Ainsi, l'équation [-@eq-nmouv] suit toujours la 2ème loi de Newton.
@@ -115,17 +115,17 @@ $$
 = - \nabla \cdot (p\mathbf{v}) + \nabla \cdot \Sigma \mathbf{v} + \rho F \mathbf{v} + \nabla \cdot q + \nabla \cdot q_{R}
 $$ {#eq-nener}
 
-- $\nabla \cdot \Sigma \mathbf{v}$ est le travail de la viscosité du fluide
-- $\nabla \cdot q + \nabla \cdot q_{R}$ est le travail de la chaleur sur le fluide
+- $\nabla \cdot \Sigma \mathbf{v}$ est le travail de la viscosité du fluide.
+- $\nabla \cdot q + \nabla \cdot q_{R}$ est le travail de la chaleur sur le fluide.
 
 L'équation de l'énergie de Navier-Stokes [-@eq-nener] ajoute à l'équation d'Euler [-@eq-eener] le travail de la viscosité et de la chaleur sur le fluide.
-Ainsi, les fluides non adiabatiques sont également pris en compte par cette équation.
+Ainsi les fluides non adiabatiques sont également pris en compte par cette équation.
 
 Dans la plupart des cas, l'équation de l'énergie n'est pas prise en compte lors de la simulation de fluides notamment à cause de la complexité du calcul.
 
 ## Équation de Boltzmann {#sec-BE}
 
-Les équations de Boltzmann sont utiles pour décrire le comportement de systèmes composés de particules, tel que les gaz ou les liquides.
+Les équations de Boltzmann sont utiles pour décrire le comportement de systèmes composés de particules, tels que les gaz ou les liquides.
 
 Dans les équations de Boltzmann, chaque particule composant le système possède une vitesse et une position qui varient dans le temps en fonction des mouvements de la particule.
 
@@ -142,9 +142,9 @@ $$ {#eq-dist}
 
 ### Collisions négligées
 
-Supposons qu'il n'y a pas de collisions entre les particules.
-Cela signifie que les particules n'interagissent pas entre elles, ce qui entraîne aucune modification de la fonction de distribution $f$.
-Ainsi, la dérivée totale de $f$ par rapport au temps $t$ est nulle: $\frac{df}{dt} = 0$ car $f$ ne varie pas dans le temps.
+Supposons qu'il n'y a pas de collision entre les particules.
+Cela signifie que les particules n'interagissent pas entre elles, ce qui n'entraîne aucune modification de la fonction de distribution $f$.
+Ainsi, la dérivée totale de $f$ par rapport au temps $t$ est nulle : $\frac{df}{dt} = 0$ car $f$ ne varie pas dans le temps.
 
 Grâce aux règles de chaînage, il est possible de trouver la dérivée totale de $f$ par rapport au temps $t$, comme montrée dans l'équation [-@eq-nocol].
 
@@ -157,8 +157,8 @@ $$
 \end{aligned}
 $$ {#eq-nocol}
 
-Dans l'équation [-@eq-nocol], le terme $\frac{\partial f}{\partial t}$ montre le changement de $f$ à vitesse et position constante, le terme $\mathbf{v} \nabla_{\mathbf{x}} f$ représente le changement de $f$ dû aux déplacements des particules, et le terme $\frac{F}{m} \nabla_{\mathbf{v}} f$ représente le changement de $f$ dû aux forces extérieures, tel que la gravité, s'appliquant sur les particules.
-Ainsi, les déplacements des particules sont uniquement dûe aux forces extérieures et à la diffusion des particules, ce qui donne en combinant l'équation [-@eq-nocol] avec le fait que $f$ ne varie pas en fonction du temps l'équation [-@eq-nocol2].
+Dans l'équation [-@eq-nocol], le terme $\frac{\partial f}{\partial t}$ montre le changement de $f$ à vitesse et position constante, le terme $\mathbf{v} \nabla_{\mathbf{x}} f$ représente le changement de $f$ dû aux déplacements des particules, et le terme $\frac{F}{m} \nabla_{\mathbf{v}} f$ représente le changement de $f$ dû aux forces extérieures, telles que la gravité, s'appliquant sur les particules.
+Ainsi, les déplacements des particules sont uniquement dûs aux forces extérieures et à la diffusion des particules, ce qui donne en combinant l'équation [-@eq-nocol] et le fait que $f$ ne varie pas en fonction du temps, l'équation [-@eq-nocol2].
 
 $$
 \frac{\partial f}{\partial t} + \mathbf{v} \nabla_{\mathbf{x}} f + \frac{F}{m} \nabla_{\mathbf{v}} f = 0
@@ -168,7 +168,7 @@ $$ {#eq-nocol2}
 
 Cependant, dans la réalité, des collisions existent entre les particules.
 Comme les particules interagissent entre elles, la fonction de distribution va subir des modifications en fonction des collisions.
-C'est pourquoi la dérivée totale de $f$ par rapport à $t$ ne sera plus égal à $0$, mais au terme $\left(\frac{\partial f}{\partial t}\right)_{coll}$ qui capture l'effet des interactions entre les particules, ce qui donne la modification de l'équation [-@eq-nocol2] en l'équation [-@eq-col].
+C'est pourquoi la dérivée totale de $f$ par rapport à $t$ ne sera plus égale à $0$, mais au terme $\left(\frac{\partial f}{\partial t}\right)_{coll}$ qui capture l'effet des interactions entre les particules, ce qui donne la modification de l'équation [-@eq-nocol2] en l'équation [-@eq-col].
 
 $$
 \frac{\partial f}{\partial t} + \mathbf{v} \nabla_{\mathbf{x}} f + \frac{F}{m} \nabla_{\mathbf{v}} f = \left(\frac{\partial f}{\partial t}\right)_{coll}

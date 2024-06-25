@@ -2,16 +2,17 @@
 
 ## Histoire {#sec-lbmh}
 
-La "Lattice Boltzman Method" (LBM) est basée sur la méthode "Lattice Gaz Automata" (LGA) qui a été développée par J. Hardy, Y. Pomeau et O. de Pazzis [-@Hardy] en 1973 sous le nom de méthode HPP, qui était basée non pas sur les équations de Navier-Stokes [-@sec-NSE], mais sur les équations de Boltzmann [-@sec-BE].
+La "Lattice Boltzman Method" (LBM) est basée sur la méthode "Lattice Gaz Automata" (LGA) développée pen 1973 ar J. Hardy, Y. Pomeau et O. de Pazzis [-@Hardy] sous le nom de méthode HPP.
+Cette méthode était basée non pas sur les équations de Navier-Stokes [-@sec-NSE], mais sur les équations de Boltzmann [-@sec-BE].
 
-Cependant, en 1986, U. Frisch, B. Hasslacher et Y. Pomeau ont réussi à obtenir les équations de Naiver-Stokes à partir de la méthode LGA en utilisant une lattice hexagonal [-@Frisch].
-La méthode LGA possédait des problèmes, notamment un bruit statistique causé par les approximations de la méthode LGA.
+En 1986, U. Frisch, B. Hasslacher et Y. Pomeau ont réussi à obtenir les équations de Naiver-Stokes à partir de la méthode LGA en utilisant une lattice hexagonale [-@Frisch].
+La méthode LGA rencontrait des difficultés, notamment un bruit statistique causé par les approximations de la méthode LGA.
 
-Pour pallier à ce problème, G. McMamara et G. Zanetti ont décidé de négliger les corrélations entre les particules et ont donné la notion de fonction de distribution moyenne dans leur travail [-@McMamara], ce qui a donné naissance à la méthode LBM.
+Pour pallier à ce problème, G. McMamara et G. Zanetti ont décidé de négliger les corrélations entre les particules et ont intégré la notion de fonction de distribution moyenne dans leur travail [-@McMamara], ce qui a donné naissance à la méthode LBM.
 Puis en 1989, Higuera et Jimenez ont simplifié la méthode LBM en définissant un opérateur de collision linéaire [-@Higuera].
-Et enfin, un opérateur de collision basé sur le travail de Bhatnagar, Gross et Krook [-@Bhatnagar] a été utilisé par simultanément par Koelman [-@Koelman] et Chen et al. [-@Chen].
+Et enfin, un opérateur de collision basé sur le travail de Bhatnagar, Gross et Krook [-@Bhatnagar] a été utilisé simultanément par Koelman [-@Koelman] et par Chen et al. [-@Chen].
 
-De nos jours, la méthode LBM est devenue populaire car elle présente une nouvelle approche efficace dans le domaine "Computational Fluid Dynamics" (CFD) qui ne consiste pas à tenter de résoudre directement les équations de Navier-Stokes [-@sec-NSE], comme par exemple la méthode SPH.
+De nos jours, la méthode LBM est devenue populaire car elle présente une nouvelle approche efficace dans le domaine "Computational Fluid Dynamics" (CFD) carj elle ne cherche pas à résoudre directement les équations de Navier-Stokes [-@sec-NSE], contrairement à la méthode SPH.
 
 ### Principes de base
 
@@ -59,9 +60,9 @@ Cependant, la méthode LBM n'est pas un solveur pour l'équation de Boltzmann [-
 ## Représentation et fonction de distribution
 
 Dans la méthode LBM, le système est représenté comme un ensemble de particules dans une grille ou une lattice, comme nous le montre la figure [-@fig-pop].
-Le but est alors de savoir comment vont évoluer ces particules dans la grille, comment celles-ci vont interagir entre elles, quel est leurs mouvements moyen dans le système et quel est leur vitesse.
+Le but est alors de savoir comment vont évoluer ces particules dans la grille, comment celles-ci vont interagir entre elles, quel est leur mouvement moyen dans le système et quelle est leur vitesse.
 
-Dans les équations de Navier-Stokes [-@sec-NSE], il n'y a que 2 variables qui sont la position et le temps, tandis que dans la méthode LBM, la vélocité des molécules est également perçue comme une variable qui pourra être nommée $\xi$ et qui décrit le changement de position $\mathbf{x}$ de la molécule en fonction du temps $t$, comme nous le montre l'équation [-@eq-xi].
+Dans les équations de Navier-Stokes [-@sec-NSE], il n'y a que 2 variables, soit la position et le temps, tandis que dans la méthode LBM, la vélocité des molécules est également perçue comme une variable qui pourra être nommée $\xi$ et qui décrit le changement de position $\mathbf{x}$ de la molécule en fonction du temps $t$, comme nous le montre l'équation [-@eq-xi].
 
 $$
 \xi = \frac{d\mathbf{x}}{dt}
@@ -79,13 +80,15 @@ $$ {#eq-ms}
 
 Il est possible de calculer les moments de la distribution $f$.
 
-Ce qui est tout particulièrement intéressant est de calculer les moments de la distribution $f$ en fonction de la vitesse des molécules $\xi$ car cela permet de relier la description à l'échelle des molécules, c'est à dire de la description mésoscopique, à la description macroscopique du fluide tel que la densité, la pression ou encore la vitesse du fluide.
-En effet, cela permet de prendre les contributions de chaque molécule afin d'obtenir les propriétés globales du fluide.
+Ce qui est tout particulièrement intéressant est de calculer les moments de la distribution $f$ en fonction de la vitesse des molécules $\xi$.
+Cela permet de relier la description à l'échelle des grouptes de molécules, c'est-à-dire la description mésoscopique, à la description macroscopique du fluide telle que la densité, la pression ou encore la vitesse du fluide.
+En effet, les propriétés globales du fluide sont dégagées grâce au suivi des contributions de chaque groupe de molécules.
 
 #### Moment d'ordre $0$
 
 Le moment d'ordre $0$ par rapport à $\xi$ peut se calculer comme dans l'équation [-@eq-mo0].
-Il permet d'obtenir la densité $\rho$ du fluide à une position $\mathbf{x}$ et à un temps $t$ car il résulte de l'intégration en fonction de la vitesse des particules que le résultat consiste à prendre chaque particule sans considérer la vitesse que peuvent avoir ces particules ce qui donne la densité de particules en une position $\mathbf{x}$ pour un temps $t$.
+Il permet d'obtenir la densité $\rho$ du fluide à une position $\mathbf{x}$ et à un temps $t$ car l'intégration en fonction de la vitesse des particules a pour résultat de prendre chaque particule sans tenir compte de leur vitesse.
+Ce qui donne la densité de particules en une position $\mathbf{x}$ pour un temps $t$.
 
 $$
 \int d^3 \xi f(\xi, \mathbf{x}, t) = \rho(\mathbf{x}, t)
@@ -93,20 +96,20 @@ $$ {#eq-mo0}
 
 #### Moment d'ordre $1$
 
-Le moment d'ordre $1$ par rapport à $\xi$ de la fonction de distribution $f$ peut s'obtenir comme montrée dans l'équation [-@eq-mo1].
+Le moment d'ordre $1$ par rapport à $\xi$ de la fonction de distribution $f$ peut s'obtenir comme montré dans l'équation [-@eq-mo1].
 
 $$
 \int d^3 \xi \xi \cdot f(\xi, \mathbf{x}, t) = \rho u(\mathbf{x}, t)
 $$ {#eq-mo1}
 
 Dans l'équation [-@eq-mo1], la fonction $u$ est une fonction donnant la vitesse globale du fluide à une position $\mathbf{x}$ et à un temps $t$.
-En d'autres termes, cela donne la vitesse macroscopique du fluide en une position et un temps donnée.
+En d'autres termes, cela donne la vitesse macroscopique du fluide en une position et à un temps donnés.
 
 La quantité de mouvement est alors obtenue par l'équation [-@eq-mo1] car elle donne la multiplication de la densité avec la vitesse.
 
 #### Moment d'ordre $2$
 
-La pression du fluide est liée au moment d'ordre $2$ de la fonction de distribution, ce qui ne vas pas être détaillé ici par soucis de simplicité.
+La pression du fluide est liée au moment d'ordre $2$ de la fonction de distribution, ce qui ne va pas être détaillé ici par souci de simplicité.
 
 ## Évolution de la fonction de distribution en fonction du temps
 
@@ -114,7 +117,7 @@ La fonction de densité $f$ contient toutes les propriétés locales du fluide.
 
 Mais comment la fonction $f$ évolue-t-elle au cours du temps ?
 
-Afin de répondre à cette question, il suffit d'observer la dérivée totale de $f$ en fonction du temps $t$, ce qui est calculé dans l'équation [-@eq-deriv] grâce aux règles de chaînage et aux définitions de la vitesse $\xi$ [-@eq-xi]
+Afin de répondre à cette question, il suffit d'observer la dérivée totale de $f$ en fonction du temps $t$, ce qui est calculé dans l'équation [-@eq-deriv] grâce aux règles de chaînage et aux définitions de la vitesse $\xi$ [-@eq-xi].
 
 $$
 \begin{aligned}
@@ -135,7 +138,7 @@ C'est pourquoi un opérateur de collision $\Omega$ est défini.
 
 Décrire précisément les collisions entre les particules est une chose difficile et coûteuse.
 
-Cependant, grâce au travail de Bhatnagar, Gross et Krook (BGK) [-@Bhatnagar], comme le système va tendre vers un état équilibré $f^{eq}$ à partir de l'état non équilibré $f$, l'opérateur de collision peut être simplifié en la relaxation de $f$ vers $f^{eq}$ comme l'équation [-@eq-bgk] montre, avec $\tau$ le temps de relaxation.
+Cependant, grâce au travail de Bhatnagar, Gross et Krook (BGK) [-@Bhatnagar], comme le système va tendre vers un état équilibré $f^{eq}$ à partir de l'état non équilibré $f$, l'opérateur de collision peut être simplifié en la relaxation de $f$ vers $f^{eq}$ comme l'équation [-@eq-bgk] le démontre, avec $\tau$ le temps de relaxation.
 
 $$
 \Omega (f) =- \frac{1}{\tau} (f - f^{eq})
@@ -145,7 +148,7 @@ La simplification donnée par l'équation [-@eq-bgk] est suffisante pour obtenir
 
 ## Computation de la méthode LBM
 
-Dans cette partie, $\mathbf{v} = \xi - u$ est considérée comme la vitesse du centre de masse d'une population de particules et les collisions entre particules sont considérées comme étant élastiques ce qui permet de conserver la masse, le moment et l'énergie.
+Dans cette partie, la définition $\mathbf{v} = \xi - u$ est la vitesse du centre de masse d'une population de particules et les collisions entre particules sont considérées comme étant élastiques ce qui signifie que la masse, le moment et l'énergie sont conservés.
 
 ### Distribution d'équilibre $f^{eq}$
 
@@ -160,16 +163,16 @@ $$ {#eq-eqdist}
 ### Discrétisation
 
 Il ne reste plus qu'à discrétiser la fonction de distribution $f$.
-La discrétisation donne:
+La discrétisation donne :
 
-- $\mathbf{x} \rightarrow \Delta \mathbf{x}$ avec $\Delta \mathbf{x}$ qui est l'espace occupé par une population. Ainsi, l'espace est divisé en plusieurs noeuds, avec chaque noeud représentant l'espace occupé par une population.
+- $\mathbf{x} \rightarrow \Delta \mathbf{x}$ avec $\Delta \mathbf{x}$ qui est l'espace occupé par une population. Ainsi, l'espace est divisé en plusieurs noeuds chaque noeud représentant l'espace occupé par une population.
   Par exemple dans la figure [-@fig-pop], $\Delta x$ sera un carré de la grille.
-- $t \rightarrow \Delta t$ avec $\Delta t$ qui est en général un intervale de temps fixé, donc qui est constant, bien qu'il soit possible de modifier dynamiquement $\Delta t$.
+- $t \rightarrow \Delta t$ avec $\Delta t$ qui est en général un intervale de temps fixé, bien qu'il soit possible de modifier dynamiquement $\Delta t$.
 - $f(\mathbf{v}, \mathbf{x}, t) \rightarrow f_{i}(\mathbf{x}, t)$ pour la vélocité $\mathbf{v}$. En fait, $\mathbf{v}$ est un vecteur.
   Il peut donc prendre une infinité de directions et de valeurs.
-  C'est pourquoi, la discrétisation de la vélocité consiste à déterminer un nombre limité de directions et de valeurs que peut prendre le vecteur vitesse $\mathbf{v}$.
+  C'est pourquoi, la discrétisation de la vélocité consiste à déterminer un nombre limité de directions et de valeurs pour le vecteur vitesse $\mathbf{v}$.
   Par exemple, la figure [-@fig-vel] illustre les vélocités que peut prendre une population.
-  La notation D2Q9 indique que l'espace possède 2 dimensions et que seulement 9 valeurs de vélocité sont possible pour une population.
+  La notation D2Q9 indique que l'espace possède 2 dimensions et que seulement 9 valeurs de vélocité sont possibles pour une population.
   $c_{i}$ est alors défini comme dans l'équation [-@eq-ci] ce qui permet de définir $q$ populations $f_{i}(\mathbf{x}, t)$, une pour chaque $c_{i}$ et de donner les équations [-@eq-rho2] et [-@eq-qmouv2] qui sont simplement une somme de quelques termes obtenus grâce à un mécanisme mathématique appelé "Hermite expansion".
   $$(c_{i}) = \begin{bmatrix} 0 & 1 & 0 & -1 & 0 & 1 & -1 & -1 & 1 \\ 0 & 0 & 1 & 0 & -1 & 1 & 1 & -1 & -1\end{bmatrix} \frac{\Delta \mathbf{x}}{\Delta t}$$ {#eq-ci}
   $$
@@ -183,7 +186,7 @@ La discrétisation donne:
 
 ![prise du travail de Körner et al. [-@Velocity]](../images/velocity.png){#fig-vel}
 
-Les discrétisations introduites permettent de discrétiser également la fonction de distribution équilibrée comme montrée dans l'équation [-@eq-fieq] avec $w_{i}$ le poids d'une population qui dépend de si la population se déplace le long des axes principaux ou diagonaux ou encore si elle reste sur place. 
+Les discrétisations introduites permettent de discrétiser également la fonction de distribution équilibrée comme montré dans l'équation [-@eq-fieq] avec $w_{i}$ le poids d'une population qui dépend du déplacement ou de l'immobilité de cette dernière. 
 
 $$
 f_{i}^{eq} = w_{i} \rho \left(1 + \frac{c_{i} \cdot u}{c_{S}^2} + \frac{(c_{i} \cdot u)^2}{2c_{S}^4} - \frac{u \cdot u}{2c_{S}^2} \right)
@@ -197,7 +200,7 @@ $$ {#eq-cs}
 
 ### Lattice Boltzmann Equation (LBE) {#sec-LBE}
 
-L'objectif est de savoir pour une fonction de distribution $f$ donnée comment celle-ci évoluera au temps $t + \Delta t$.
+L'objectif est de savoir pour une fonction de distribution $f$ donnée, comment celle-ci évoluera au temps $t + \Delta t$.
 
 La "Lattice Boltzmann Equation" (LBE) ou "Lattice BGK equation" est alors définie comme dans l'équation [-@eq-lbe].
 
@@ -214,7 +217,7 @@ $$ {#eq-lbe2}
 Dans l'équation [-@eq-lbe2], le terme de relaxation donne un déplacement ou une redistribution de la population $i$, qui ne s'est pas encore déplacée.
 Elle est ensuite propagée vers ses voisins.
 
-Les avantages sont que les collisions sont locales et algébriques: c'est un algorithme très simple pour les collisions et la propagation est linéaire et exacte, ce qui signifie que l'on peut décomposer le solveur [-@eq-lbe2] en étape de collision et de propagation.
+Les avantages sont que les collisions sont locales et algébriques : c'est un algorithme très simple pour les collisions et la propagation est linéaire et exacte, ce qui signifie que l'on peut décomposer le solveur [-@eq-lbe2] en étape de collision et de propagation.
 
 ### Viscosité
 
@@ -230,10 +233,10 @@ $$ {#eq-visc}
 ### Algorithme {#sec-lbm-algo}
 
 - La condition initiale $f_{i}$ est connue. Ainsi, il est possible de calculer la densité et la vélocité par la somme des moments de $f$.
-- La distribution équilibrée peut donc être calculée grâce à la condition initiale $f_{i}$ car elle ne dépend que de la densité et de la vélocité, qui ont pu être calculé précédement.
+- La distribution équilibrée peut donc être calculée grâce à la condition initiale $f_{i}$ car elle ne dépend que de la densité et de la vélocité, qui ont pu être calculées précédemment.
 - La distribution post collision $f_{i}^*(\mathbf{x}, t) = f_{i}(\mathbf{x}, t) -\frac{\Delta t}{\tau}(f_{i}(\mathbf{x}, t) - f_{i}^{eq}(\mathbf{x}, t))$ est ensuite calculée grâce à la distribution équilibrée et à la condition initiale car le temps de relaxation est fixé afin d'avoir une viscosité donnée. Elle donne comment les populations sont redistribuées dans l'espace des vélocités, mais ne déplace pas les populations.
   Il s'agit de l'étape collision de la figure [-@fig-algo].
-- La propagation de la distribution post collision $f_{i}^*$ aux voisins: $f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}^*i(\mathbf{x}, t)$. C'est l'étape propagation de la figure [-@fig-algo].
+- La propagation de la distribution post collision $f_{i}^*$ aux voisins : $f_{i}(x + c_{i}\Delta t, t + \Delta t) = f_{i}^*i(\mathbf{x}, t)$. C'est l'étape propagation de la figure [-@fig-algo].
 Cela est représenté dans la figure [-@fig-algo].
 
 ![prise dans le travail de Schiller et al. [-@algo]](../images/algo.png){#fig-algo}
@@ -241,29 +244,5 @@ Cela est représenté dans la figure [-@fig-algo].
 Pourquoi ça marche ?
 
 - On a une "lattice symetry and isotropy"
-- La masse et la quantité de mouvement sont conservées car: $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$
+- La masse et la quantité de mouvement sont conservées car : $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$.
 - Les analyses de Champman-Enskog [-@Champman] et [-@Enskog] montrent que les LBE [-@sec-LBE] sont suffisantes pour retrouver le comportement de Navier-Stokes.
-
-## Avantages
-
-- La méthode LBM est rapide car elle est explicite et linéaire en propagation.
-- Il n'y a pas d'équation de poisson à résoudre car on ne résoud pas directement les équations de Navier-Stokes [-@sec-NSE].
-- La méthode LBM est locale.
-- Le fait que la méthode LBM est locale la rend facilement parallélisable car c'est possible de séparer le calcul. De plus, la méthode LBM est très scalable.
-- Les géométries complexes peuvent être implémentées facilement
-
-## Désavantages
-
-- Il n'est possible de simuler que des petits nombres de Knudsen.
-  Le nombre de Knudsen décrit le régime d'écoulement d'un fluide.
-  Lorsqu'il est grand, cela signifie que les collisions entre les particules sont rares, à l'inverse de lorsqu'il est petit.
-  Donc il n'est possible de simuler que de la mécanique des fluides classique où les collisions entre les particules ne sont pas rares.
-- Il n'est également pas possible de simuler des grands nombres de Mach.
-  Le nombre de Mach représente un rapport entre la vitesse du flux d'un fluide et la vitesse du son dans le fluide.
-  Donc un petit nombre de Mach signifie que la vitesse du flux du fluide est faible par rapport à la vitesse du son, ce qui caractérise des écoulements incompressibles ou à faible compressibilité.
-  À l'inverse, un grand nombre de Mach représente les fluides où les effets de compressibilité sont important.
-  Il n'est donc possible de simuler que des fluides incompressibles ou faiblement compressibles.
-- Les conditions aux bords doivent correctement être définies.
-  En effet, les conditions aux bords définiront la cohérence et la précision du résultat.
-
-Ces explications ont essentiellement été tirées du travail du Dr. Moritz Lehmann [-@Lehmann], qui est l'auteur de FluidX3D, mais également du travail et des explications de Krüeger [-@Krueger] et [-@Krueger2].
