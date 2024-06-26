@@ -3,8 +3,8 @@
 Dans ce chapitre, une comparaison entre les deux codes est proposée.
 Afin de faire un petit rappel, on a comme code :
 
-- GVDB-Voxel: ce code est une implémentation de la méthode SPH en tirant profit des technologies de Nvidia
-- FluidX3D: ce code est une implémentation de la méthode LBM en utilisant OpenCL, ce qui rend le code exécutable sur tous les GPUs.
+- GVDB-Voxel : ce code est une implémentation de la méthode SPH en tirant profit des technologies de Nvidia.
+- FluidX3D : ce code est une implémentation de la méthode LBM en utilisant OpenCL, ce qui rend le code exécutable sur tous les GPUs.
 
 La comparaison a donc impliqué d'essayer de faire des exemples similaires afin de pouvoir comparer au mieux les deux implémentations des méthodes.
 
@@ -103,11 +103,11 @@ Les tailles des domaines ont été choisies afin d'obtenir un résultat similair
 
 Dans le cas de GVDB-Voxel, le domaine est de taille $400 \times 400 \times 200$ tandis que dans le cas de FluidX3D, le domaine est de taille $200 \times 200 \times 100$.
 
-Ainsi, les deux domaines sont proportionnels, mais pas identique car la résolution de FluidX3D est contrôlée par la taille du domaine.
+Ainsi, les deux domaines sont proportionnels, mais pas identiques car la résolution de FluidX3D est contrôlée par la taille du domaine.
 
-Comme le code de GVDB-Voxel possède $1.5 \cdot 10^6$ particules, les propriétés de celles-ci telle que leur position, leur vitesse, leur masse etc doivent être stockées.
+Comme le code de GVDB-Voxel possède $1.5 \cdot 10^6$ particules, les propriétés de celles-ci telles que leur position, leur vitesse, leur masse etc. doivent être stockées.
 
-À la différence, dans le code de FluidX3D, comme le domaine est de taille $200 \times 200 \times 100$, la résolution est de $200 \cdot 200 \cdot 100 = 4 \cdot 10^6$ donnant les informations de $4\cdot 10^6$ lattices à stocker.
+Au contraire, dans le code de FluidX3D, comme le domaine est de taille $200 \times 200 \times 100$, la résolution est de $200 \cdot 200 \cdot 100 = 4 \cdot 10^6$ donnant les informations de $4\cdot 10^6$ lattices à stocker.
 Le code de FluidX3D tourne en D3Q19 [-@sec-methode-lbm], ce qui signifie que la discrétisation de la vélocité donne 19 valeurs à stocker.
 Donc pour chaque lattice, au moins 19 valeurs sont à stocker ne serait-ce que pour la vélocité.
 Ainsi, le code de FluidX3D devrait utiliser plus de mémoire que le code de GVDB-Voxel.
@@ -116,7 +116,7 @@ Pour la comparaison des deux méthodes, comme le code de GVDB-Voxel utilise du r
 
 ### Moments clés
 
-Lors de la simulation, 2 moments clés ont été défini.
+Lors de la simulation, 2 moments clés ont été définis.
 Le premier moment clé est utilisé afin d'ajuster la viscosité pour avoir un résultat similaire entre FluidX3D et GVDB-Voxel, et le deuxième moment clé indique la fin de la simulation, comme il est possible de voir sur la figure [-@fig-key].
 
 :::{#fig-key layout-ncol=2}
@@ -144,25 +144,24 @@ En effet, le fluide s'écrase et se compresse systématiquement sur GVDB-Voxel, 
 Phénomène de compression dans GVDB
 :::
 
-Afin de résoudre le phénomène de compression, un jeu sur de nombreux paramètres du code de GVDB-Voxel, tel que sur la taille des particules, l'espacement, la densité, etc, a été effectué, mais sans succès.
+Afin de résoudre le phénomène de compression, un jeu sur de nombreux paramètres du code de GVDB-Voxel, tels que la taille des particules, l'espacement, la densité etc. a été effectué, mais sans succès.
 
 ## Exécution des codes {#sec-comparaison}
 
 Dans cette partie, l'objet d'étude sera l'exécution des deux codes.
 
-Les deux codes donnent une visualisation en temps réelle, c'est à dire que le rendu est exécuté en même temps que le calcul de la simulation.
+Les deux codes donnent une visualisation en temps réel, c'est à dire que le rendu est exécuté en même temps que le calcul de la simulation.
 
-La machine ayant servit à l'exécution des deux codes est composée d'un processeur Ryzen 9 7950X3D, d'une carte graphique Nvidia RTX 4080 et de 16 Go de mémoire vive.
+La machine ayant servi à l'exécution des deux codes est composée d'un processeur Ryzen 9 7950X3D, d'une carte graphique Nvidia RTX 4080 et de 16 Go de mémoire vive.
 
-Afin d'évaluer les performances des deux codes, un script bash a été créé afin de reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
+Afin d'évaluer les performances des deux codes, un script bash a été créé pour reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
 
-À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas en visualisation temps réel sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
+À cet instant du travail, un souci s'est présenté : le code de FluidX3D ne fonctionne pas en visualisation en temps réel sur le linux de nom ordinateur. En effet, des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
 Mes suppositions à l'heure actuelle sont que Nvidia utilise X11 avec Xinemara qui est une autre version de XrandR, rendant l'affichage incompatible avec mon ordinateur linux.
-La solution n'étant pas trouvée, l'enregistrement des performances a été effectué sous Windows pour le code de FluidX3D,
-ce qui ne devait pas être trop problématique étant donné que les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
-Cependant, il a fallut traduire le script bash en script powershell, ce qui s'est fait avec l'aide de ChatGPT et des discussions sur les forums et les blogs.
+La solution n'étant pas trouvée, l'enregistrement des performances a été effectué sous Windows pour le code de FluidX3D, ce qui ne devait pas être trop problématique étant donné que les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
+Cependant, il a fallu traduire le script bash en script powershell, ce qui s'est fait avec l'aide de ChatGPT et des discussions sur les forums et les blogs.
 
-Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profil du rapport.
+Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profit du rapport.
 
 Les résultats obtenus sont alors donnés sur les figures [-@fig-g1], [-@fig-1] et [-@fig-raytracing].
 
@@ -285,10 +284,10 @@ Résultats obtenus pour FluidX3D
 Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent soudainement.
 Cela est causé par un signal d'arrêt envoyé au programme entre l'enregistrement de 2 mesures, donnant une valeur mauvaise car la mesure utilise le PID du processus en cours d'exécution, qui est détruit par le signal.
 
-La première observation qu'il est possible de faire sur les deux graphiques obtenus dans la figure [-@fig-results] est que le temps d'exécution des deux codes diffère d'un facteur $10$.
+La première observation, qu'il est possible de faire sur les deux graphiques obtenus dans la figure [-@fig-results], est que le temps d'exécution des deux codes diffère d'un facteur $10$.
 En effet, le code de FluidX3D est exécuté en approximativement $3$ secondes alors que le code de GVDB-Voxel est exécuté en environ $30$ secondes.
 
-Cette différence est crutial et semble indiquer clairement quel code est le plus efficace.
+Cette différence est crutiale et semble indiquer clairement quel code est le plus efficace.
 
 Cependant, un grand nombre de données ont été fournies par les scripts d'évaluation de performance, c'est pourquoi une étude plus en détail va être effectuée.
 
@@ -307,11 +306,11 @@ Comme l'utilisation de la RAM est avoisinant les 1 % pour les deux codes, on peu
 
 ### Utilisation du GPU
 
-Afin de caractériser l'utilisation du GPU, 3 valeurs ont été retenues:
+Afin de caractériser l'utilisation du GPU, 3 valeurs ont été retenues :
 
-- Le pourcentage de mémoire GPU utilisée par le processus
-- Le pourcentage de puissance de calcul du GPU utilisée par le processus 
-- Le pourcentage d'accès à la mémoire du GPU
+- Le pourcentage de mémoire GPU utilisée par le processus.
+- Le pourcentage de puissance de calcul du GPU utilisée par le processus. 
+- Le pourcentage d'accès à la mémoire du GPU.
 
 Comme mentionné précédemment, étant donné le nombre de données à stocker dans les deux codes, on s'attend à avoir le code de FluidX3D utilisant plus de mémoire GPU que le code de GVDB-Voxel.
 Cependant, il n'en est rien car les deux codes utilisent environ 8 % de la mémoire du GPU.
@@ -320,7 +319,7 @@ De plus, les deux codes exploitent toute la puissance du GPU car ils sont tous l
 
 Quant au pourcentage d'accès à la mémoire, le code de FluidX3D est à 50% alors que le code de GVDB-Voxel est à moins de 20%, comme les graphiques [-@fig-1] et [-@fig-g1] le représentent.
 
-Étant donné que la même quantité de mémoire est utilisée, une explication serait que FluidX3D solliciterait beaucoup plus la mémoire car, comme il calcule plus rapidement les prochaines étapes de la simulation, il a également plus rapidement besoin de récupérer les étapes, calculées précédemment, stockées en mémoire.
+Étant donné que la même quantité de mémoire est utilisée, une explication serait que FluidX3D solliciterait beaucoup plus la mémoire car, comme il calcule plus rapidement les prochaines étapes de la simulation, il a également plus rapidement besoin de récupérer les étapes calculées précédemment et stockées en mémoire.
 Ainsi, si le code de GVDB-Voxel mettait le même temps d'exécution que le code de FluidX3D, les accès à la mémoire ne seraient pas répartis sur 30 secondes ce qui ferait un pourcentage d'accès à la mémoire plus élevé, bien que grâce à la technologie GVDB [-@sec-gvdb], il pourrait cependant avoir un pourcentage d'accès à la mémoire moins grand que FluidX3D.
 
 Comme le code de GVDB-Voxel possède un pourcentage d'accès à la mémoire moins grand que FluidX3D et un temps d'exécution 10 fois plus élevé que le temps d'exécution de FluidX3D, cela signifie que les étapes de calcul du comportement du fluide prennent plus de temps dans l'implémentation GVDB-Voxel de la méthode SPH comparé à l'implémentation FluidX3D de la méthode LBM.
@@ -332,4 +331,4 @@ Les performances observées sont identiques aux performances observées sans ray
 
 Ainsi, le code de GVDB-Voxel semble moins bien optimisé que le code de FluidX3D qui donne des performances remarquables.
 Cela peut être dû grandement aux améliorations et à l'optimisation des technologies qui a seulement pu profiter au code de FluidX3D et non de GVDB-Voxel qui n'a pas été mis à jour depuis 2018, soit depuis 6 ans.
-La différence observée peut également être dûe au choix de la méthode, la méthode lbm étant peut-être objectivement plus rapide que la méthode sph, à l'implémentation qui dans le cas de FluidX3D reçoit régulièrement des mises à jour, des optimisations ou encore des ajouts de fonctionnalité tandis que dans le cas de GVDB-Voxel, aucune mise à jour n'est faite, ce qui peut signifier que soit le code est parfait, ce qui serait étonnant vu les difficultés rencontrées à l'initialisation de la méthode SPH et vu le peu de documentation expliquant les paramètres utilisés dans le code, soit le code est certe un bon code, mais pas forcément très optimisé ni sans erreurs.
+La différence observée peut également être dûe soit au choix de la méthode, la méthode LBM étant peut-être objectivement plus rapide que la méthode SPH, soit à l'implémentation qui dans le cas de FluidX3D reçoit régulièrement des mises à jour, des optimisations ou encore des ajouts de fonctionnalités tandis que dans le cas de GVDB-Voxel, aucune mise à jour n'est faite, ce qui peut signifier que soit le code est parfait, ce qui serait étonnant vu les difficultés rencontrées à l'initialisation de la méthode SPH et vu le peu de documentation expliquant les paramètres utilisés dans le code, soit le code est certes un bon code, mais pas forcément très optimisé ni sans erreurs.
