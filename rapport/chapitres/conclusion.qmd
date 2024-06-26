@@ -1,0 +1,59 @@
+# Conclusion
+
+## Résumé des comparaisons
+
+Le résumé des comparaisons se trouve dans le tableau [-@tbl-result].
+
+| |SPH|LBM|
+|-|-|-|
+|Approche| Computation directe des équations de Navier-Stokes|Utilisation de l'équation de Boltzmann pour résoudre les équations de Navier-Stokes|
+| | | |
+|Idée | Représenter le fluide comme un ensemble de particules|Représenter le fluide comme des groupes de particules|
+| | | |
+|Physique| Déterministique | Probabilistique |
+| | | |
+|Nombre de paramètres| Normal | Plus nombreux |
+| | | |
+|Écoulements haute vitesse/incompressible | Oui | Oui si modifications |
+| | | |
+|Fluides non-Newtonien | Oui si modifications | Oui |
+| | | |
+|Maillage| Non | Oui |
+| | | |
+|Domaine| Adaptatif | Fixe |
+| | | |
+|Géométrie complexe | Oui | Oui |
+| | | |
+|Conditions aux limites| Difficile | Difficile pour avoir de bons résultats|
+| | | |
+|Parallélisable| Oui | Oui |
+| | | |
+|Scallable| Oui | Oui |
+| | | |
+|Maintenance|Il y a 6 ans|Régulièrement|
+| | | |
+|Implémentation| GVDB | FluidX3D |
+| | | |
+|Technologie| CUDA et GVDB-Voxel | OpenCL |
+| | | |
+| Système d'exploitation pour la comparaison | Linux | Windows 10 |
+| | | |
+| Raytracing | Natif CUDA | Oui |
+| | | |
+|Temps d'exécution| 30 secondes | 3 secondes |
+| | | |
+| Utilisation CPU | Non | Un peu |
+| | | |
+| Utilisation RAM | Identique | Identique |
+| | | |
+| Utilisation Mémoire GPU | Identique | Identique |
+| | | |
+| Utilisation GPU | Identique | Identique |
+| | | |
+| Accès à la mémoire GPU | Peu | Beaucoup |
+
+: Tableau récapitulatif {#tbl-result}
+
+## Conclusion
+
+La comparaison a donné comme résultat que le code d

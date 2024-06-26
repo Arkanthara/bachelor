@@ -48,7 +48,7 @@ Par contre la méthode SPH est très efficace pour simuler des phénomènes avec
 Comme vu précédemment, la méthode SPH est également utilisée pour la simulation d'explosions, de fragmentation de matériaux, d'impact à haute vitesse, etc...
 La méthode LBM ne permet pas de faire cela, cependant, elle possède des applications multi-physiques telles que les écoulements multiphasiques comme les interactions entre fluides immiscibles, les interactions entre fluide et structure déformable ou rigide, les transferts de chaleur, les réactions chimiques et la combustion dans les fluides, les écoulements à petite échelle, etc...
 
-À la différence de la méthode SPH, la méthode LBM permet également de simuler des fluides non newtoniens.
+La méthode LBM permet également de simuler des fluides non newtoniens à la différence de la méthode SPH qui requiert des modifications afin de modéliser des fluides non newtoniens.
 
 ## Comparaison technologique
 

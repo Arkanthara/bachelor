@@ -18,6 +18,7 @@ book:
         - chapitres/docker.qmd
         - chapitres/comparaison_1.qmd
         - chapitres/comparaison_2.qmd
+        - chapitres/conclusion.qmd
 
 bibliography: references.bib
 
