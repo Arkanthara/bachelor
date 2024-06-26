@@ -33,11 +33,41 @@ Face à ces difficultés, la solution finale a été de renoncer à cette compar
 
 C'est pourquoi l'exemple choisi est un exemple fonctionnel modifié de la méthode SPH.
 
-Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-@fig-sequence] présente en annexe.
-Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-@fig-sequence] est tirée de FluidX3D.
+Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-#fig-sequence] présente en annexe.
+Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-#fig-sequence] est tirée de FluidX3D.
 Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait des vagues dans le bac, mais celle-ci a été supprimée afin de pouvoir avoir le même exemple dans les deux codes.
 
 Comme le code GVDB est conçu pour modéliser des simulations à grande échelle comme l'océan par exemple et que le code de FluidX3D est plus dans le domaine du mètre, les deux exemples ne sont théoriquement pas identiques, c'est pourquoi les paramètres ont été définis afin que les deux codes donnent visuellement les mêmes résultats.
+
+Ainsi, ce ne sera pas une comparaison quantitative, mais qualitative qui sera faite.
+
+Il est possible de voir sur la figure [-@fig-quality] 3 résolutions différentes pour FluidX3D et une résolution pour GVDB-Voxel.
+
+::: {#fig-quality layout-nrow=2}
+
+![GVDB: 1500000 particules](../images/gvdb-voxel-key-1.png)
+
+![FluidX3D: Résolution de 4000000](../images/domain_divide_by_2.png)
+
+![FluidX3D: Résolution de 32000000](../images/domain_normal.png)
+
+![FluidX3D: Résolution de 108000000](../images/domain_3_2.png)
+
+Comparaison des qualités
+:::
+
+
+Pour la simulation sur FluidX3D, le domaine initial est de taille $400 \times 400 \times 200$, ce qui signifie que la résolution est donnée par $400 \cdot 400 \cdot 200 = 3,2 \cdot 10^{7}$
+
+Pour la simulation sur GVDB, le nombre initial de particules est de $1,5 \cdot 10^{6}$.
+La qualité de GVDB Voxel est donc moindre que celle de FluidX3D, comme il est possible de constater visuellement, notamment sur la figure [-@fig-key] ou il est possible de voir de nombreux détails de vagues chez FluidX3D tandis que chez GVDB Voxel, tout à l'air plat, lisse.
+
+Donc d'un côté, il y a $3.2 \cdot 10^7$ lattice à stocker, sachant que par lattice, comme le code est exécuté en $D3Q19$, cela signifie qu'il y a pour chaque lattice $19$ valeurs de vélocité à stocker. 
+Cela donne un total de $6\cdot 10^8$ données à stocker, ce qui est non négligeable.
+Et de l'autre côté, seulement les données de chacune des $1.5 \cdot 10^6$ particules sont à stocker.
+
+Afin de mieux les comparer, des tests ont été effectués avec chez GVDB-Voxel le nombre de particules modifié et chez FluidX3D la taille du domaine modifié, ce qui est possible de voir dans la section [-@sec-comparaison].
+
 
 ### Moments clés
 
@@ -62,9 +92,9 @@ En effet, le fluide s'écrase et se compresse systématiquement sur GVDB-Voxel, 
 
 :::{#fig-compress layout-ncol=2}
 
-![Initialisation](../images/compress-init.png)
+![Initialisation](../images/compress-init.png){width=60%}
 
-![Compression](../images/compress-final.png)
+![Compression](../images/compress-final.png){width=60%}
 
 Phénomène de compression dans GVDB
 :::
@@ -73,105 +103,169 @@ Afin de résoudre le phénomène de compression, un jeu sur de nombreux paramèt
 
 C'est pourquoi les deux exemples ne sont pas identiques, mais cependant très similaires.
 
-## Exécution des codes
+## Exécution des codes {#sec-comparaison}
 
 Dans cette partie, l'objet d'étude sera l'exécution des deux codes.
 
-Les deux codes donnent une visualisation en temps réelle, c'est à dire que le rendu est fait en même temps que le calcul de la simulation.
+Les deux codes donnent une visualisation en temps réelle, c'est à dire que le rendu est exécuté en même temps que le calcul de la simulation.
 
 Afin d'évaluer les performances des deux codes, un script bash a été créé afin de reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
 
 À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
 Mes suppositions à l'heure actuelle sont que Nvidia utilise X11 avec Xinemara qui est une autre version de XrandR, rendant l'affichage incompatible avec mon ordinateur linux.
-La solution n'étant pas trouvée, l'enregistrement des performances s'est fait sous Windows pour le code de FluidX3D.
-
-Cela ne devait pas être trop problématique car les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
+La solution n'étant pas trouvée, l'enregistrement des performances s'est fait sous Windows pour le code de FluidX3D,
+ce qui ne devait pas être trop problématique étant donné que les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
 Cependant, il a fallut traduire le script bash en script powershell, ce qui s'est fait avec l'aide de ChatGPT et des discussions sur les forums et les blogs.
 
 Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profil du rapport.
 
-Les résultats obtenus sont alors donnés sur les figures [-@fig-result-FluidX3D] et [-@fig-result-GVDB].
+Les résultats obtenus sont alors donnés sur les figures [-@fig-1] et [-@fig-g1].
 
 ```{python}
-#| echo: false
-#| label: fig-result-FluidX3D
-#| fig-cap: Résultats de FluidX3D
+#| label: fig-1
+#| fig-cap: FluidX3D résolution 32000000
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
 # Lire les données du fichier CSV
 log_file = "../../../FluidX3D/logs/usage_stats_5.csv"
-df = pd.read_csv(log_file)
 
-# Afficher les premières lignes pour vérifier le contenu
-#print(df.head())
-
-# Convertir la colonne 'Timestamp' en datetime
-df["Timestamp"] = pd.to_datetime(df["Timestamp"])
-
-# Calculer les secondes depuis le début
-start_time = df["Timestamp"].iloc[0]
-df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
-
-# Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
-plt.figure(figsize=(14, 7))
-plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
-# plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
-plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
-plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
-plt.plot(
-    df["Seconds_Since_Start"],
-    df["GPU_Memory_Usage(%)"],
-    label="Utilisation Mémoire GPU (%)",
-)
-plt.xlabel("Temps (secondes)")
-plt.ylabel("Utilisation (%)")
-plt.title(
-    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU et de la RAM"
-)
-plt.legend()
-plt.grid(True)
-plt.show()
+def fluidx3d(log_file: str = 'domain_normal.csv'):
+    df = pd.read_csv("../../../FluidX3D/logs/" + log_file)
+    
+    # Afficher les premières lignes pour vérifier le contenu
+    #print(df.head())
+    
+    # Convertir la colonne 'Timestamp' en datetime
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+    
+    # Calculer les secondes depuis le début
+    start_time = df["Timestamp"].iloc[0]
+    df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
+    
+    # Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
+    plt.figure(figsize=(14, 7))
+    plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
+    # plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
+    plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
+    plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Usage(%)"],
+        label="Utilisation Mémoire GPU (%)",
+    )
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Access_Usage(%)"],
+        label="Accès à la Mémoire GPU (%)",
+    )
+    plt.xlabel("Temps (secondes)")
+    plt.ylabel("Utilisation (%)")
+    plt.title(
+    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU, des accès à la mémoire GPU et de la RAM"
+    )
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+fluidx3d()
 ```
 ```{python}
-#| echo: false
-#| label: fig-result-GVDB
-#| fig-cap: "Résultats de GVDB Voxel"
+#| label: fig-g1
+#| fig-cap: GVDB Voxel 1500000 particules
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
 # Lire les données du fichier CSV
-log_file = "../../../gvdb-voxels/logs/usage_stats_2.csv"
-df = pd.read_csv(log_file)
-
-# Afficher les premières lignes pour vérifier le contenu
-# print(df.head())
-
-# Convertir la colonne 'Timestamp' en datetime
-df["Timestamp"] = pd.to_datetime(df["Timestamp"])
-
-# Calculer les secondes depuis le début
-start_time = df["Timestamp"].iloc[0]
-df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
-
-# Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
-plt.figure(figsize=(14, 7))
-plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
-# plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
-plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
-plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
-plt.plot(
-    df["Seconds_Since_Start"],
-    df["GPU_Memory_Usage(%)"],
-    label="Utilisation Mémoire GPU (%)",
-)
-plt.xlabel("Temps (secondes)")
-plt.ylabel("Utilisation (%)")
-plt.title(
-    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU et de la RAM"
-)
-plt.legend()
-plt.grid(True)
-plt.show()
+log_file = "../../../gvdb-voxels/logs"
+def gvdb(log_file: str = 'domain_normal.csv'):
+    df = pd.read_csv("../../../gvdb-voxels/logs/" + log_file)
+    
+    # Afficher les premières lignes pour vérifier le contenu
+    # print(df.head())
+    
+    # Convertir la colonne 'Timestamp' en datetime
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+    
+    # Calculer les secondes depuis le début
+    start_time = df["Timestamp"].iloc[0]
+    df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
+    
+    # Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
+    plt.figure(figsize=(14, 7))
+    plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
+    # plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
+    plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
+    plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Usage(%)"],
+        label="Utilisation Mémoire GPU (%)",
+    )
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Access_Usage(%)"],
+        label="Accès à la Mémoire GPU (%)",
+    )
+    plt.xlabel("Temps (secondes)")
+    plt.ylabel("Utilisation (%)")
+    plt.title(
+    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU, des accès à la mémoire GPU et de la RAM"
+    )
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+gvdb()
 ```
 
+Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent d'un coup.
+Cela est causé par un signal d'arrêt envoyé au programme entre 2 mesures.
+De plus, au début de l'exécution du code, le CPU est légèrement solicité afin de tout mettre en place pour la simulation.
+
+Les résultats obtenus sont très similaire, le temps d'exécution étant différent d'un facteur largement inférieur à $10$, ce qui est donc négligeable.
+
+Cependant, il est possible de remarquer sur la figure [-@fig-1] de FluidX3D que le pourcentage d'utilisation de la mémoire GPU utilisée est plus grand que sur la figure [-@fig-g1] de GVDB-Voxel.
+Comme mentionné précédement, il y a une différence de qualité entre FluidX3D et GVDB-Voxel car FluidX3D possède une qualité plus élevée que GVDB-Voxel.
+
+Afin de pallier à cette différence de qualité, un doublement du nombre de particules a été fait sur GVDB-Voxel, donnant les performances du graphique [-@fig-g2].
+
+```{python}
+#| label: fig-g2
+#| fig-cap: GVDB Voxel 3000000 particules
+gvdb('2xparticules.csv')
+```
+Il en résulte une différence d'un facteur $10$ entre le temps d'exécution de la technique de FluidX3D, qui est seulement à $30$ secondes, et la technique GVDB-Voxel, qui est maintenant à $300$ secondes, ce qui laisse présumer que la méthode FluidX3D, malgré son usage plus grand de la mémoire, est plus rapide que la méthode GVDB-Voxel.
+De plus, lorsque le nombre de particules a augmenté, le pourcentage de la mémoire GPU a diminué, ce qui est contre intuitif, c'est pourquoi des tests sur la mémoire GPU utilisé sont effectués dans la suite de l'étude.
+
+Un cas intéressant serait maintenant d'essayer d'avoir le code FluidX3D avec le même pourcentage d'utilisation de la mémoire GPU, ce qui a été effectué sur la figure [-@fig-2] par une division du domaine du fluide par 2.
+Cependant, comme il est possible de constater sur la figure, le code ne met que $3$ secondes environ à s'exécuter, ce qui signifie que pour une qualité équivalente, le code de FluidX3D met $10$ fois moins de temps à s'exécuter.
+
+Mais il est possible de remarquer malgré un faible nombre de valeurs que l'utilisation de la mémoire GPU est toujours élevée car elle est d'environ $40$ pourcent.
+
+```{python}
+#| label: fig-2
+#| fig-cap: FluidX3D résolution 4000000
+fluidx3d('domain_divide_by_2.csv')
+```
+### Utilisation de la mémoire GPU
+
+Afin d'étudier l'utilisation de la mémoire GPU, un test a été fait en prenant $\frac{3}{2}$ du domaine [-@fig-3], puis en prenant $2$ fois le domaine [-@fig-4].
+Lors de la multiplication par $4$ du domaine, la simulation a été stoppée avant l'instant clé car elle allait prendre quelques heures.
+Cependant, cela suffit pour observer le pourcentage d'utilisation de la mémoire GPU.
+Il est aisément possible d'observer que le pourcentage d'utilisation de la mémoire GPU diminue en fonction de la résolution, ce qui est incompréhensible.
+
+En effet, pour une résolution de $32\cdot 10^6$, l'utilisation de la mémoire GPU est de 60 pourcent tandis que pour une résolution de $256 \cdot 10^6$, l'utilisation de la mémoire GPU est seulement de 10 pourcent.
+
+Une explication évidente serait que le pourcentage donné serait le pourcentage de mémoire non utilisée.
+
+```{python}
+#| label: fig-3
+#| fig-cap: FluidX3D résolution 108000000
+fluidx3d('domain_3_2.csv')
+```
+```{python}
+#| label: fig-4
+#| fig-cap: FluidX3D résolution 256000000
+#fluidx3d('domain_fois_4.csv')
+```
