@@ -96,7 +96,7 @@ Donc de ce côté, il y a des différences, mais les deux technologies s'équiva
 La méthode SPH est implémentée au moyen de la technologie Nvidia GVDB-Voxel.
 Elle utilisait OptiX pour le raytracing, qui a été supprimé en faveur du raytracing intégré de CUDA en raison de la difficulté à trouver la bonne librairie pour faire tourner le code.
 
-#### GVDB-Voxel
+#### GVDB-Voxel {#sec-gvdb}
 
 La technologie GVDB-Voxel a été développée vers 2018 pour le calcul, la gestion, la simulation et le rendu de données volumétriques éparses à grande échelle sur des GPUs Nvidia.
 Elle est uniquement dépendante de CUDA.

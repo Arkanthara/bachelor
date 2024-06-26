@@ -97,7 +97,7 @@ Ainsi, les deux domaines sont proportionnels, mais pas identique car la résolut
 Comme le code de GVDB-Voxel possède $1.5 \cdot 10^6$ particules, les propriétés de celles-ci telle que leur position, leur vitesse, leur masse etc doivent être stockées.
 
 À la différence, dans le code de FluidX3D, comme le domaine est de taille $200 \times 200 \times 100$, la résolution est de $200 \cdot 200 \cdot 100 = 4 \cdot 10^6$ donnant les informations de $4\cdot 10^6$ lattices à stocker.
-Le code de FluidX3D tourne en D3Q19 [-@sec-lbm], ce qui signifie que la discrétisation de la vélocité donne 19 valeurs à stocker.
+Le code de FluidX3D tourne en D3Q19 [-@sec-methode-lbm], ce qui signifie que la discrétisation de la vélocité donne 19 valeurs à stocker.
 Donc pour chaque lattice, au moins 19 valeurs sont à stocker ne serait-ce que pour la vélocité.
 Ainsi, le code de FluidX3D devrait utiliser plus de mémoire que le code de GVDB-Voxel.
 
@@ -141,6 +141,8 @@ Dans cette partie, l'objet d'étude sera l'exécution des deux codes.
 
 Les deux codes donnent une visualisation en temps réelle, c'est à dire que le rendu est exécuté en même temps que le calcul de la simulation.
 
+La machine ayant servit à l'exécution des deux codes est composée d'un processeur Ryzen 9 7950X3D, d'une carte graphique Nvidia RTX 4080 et de 16 Go de mémoire vive.
+
 Afin d'évaluer les performances des deux codes, un script bash a été créé afin de reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
 
 À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas en visualisation temps réel sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
@@ -157,7 +159,7 @@ Les résultats obtenus sont alors donnés sur les figures [-@fig-1] et [-@fig-g1
 
 ```{python}
 #| label: fig-1
-#| fig-cap: FluidX3D résolution 32000000
+#| fig-cap: FluidX3D résolution 4000000 sans raytracing
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -259,41 +261,57 @@ Résultats obtenus pour GVDB-Voxel et FluidX3D
 
 Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent soudainement.
 Cela est causé par un signal d'arrêt envoyé au programme entre l'enregistrement de 2 mesures, donnant une valeur mauvaise car la mesure utilise le PID du processus en cours d'exécution, qui est détruit par le signal.
-De plus, au début de l'exécution du code, le CPU est légèrement solicité afin de tout mettre en place pour la simulation.
 
+La première observation qu'il est possible de faire sur les deux graphiques obtenus dans la figure [-@fig-results] est que le temps d'exécution des deux codes diffère d'un facteur $10$.
+En effet, le code de FluidX3D est exécuté en $\approx 3$ secondes alors que le code de GVDB-Voxel est exécuté en environ $\approx 30$ secondes.
 
-Il en résulte une différence d'un facteur $10$ entre le temps d'exécution de la technique de FluidX3D, qui est seulement à $30$ secondes, et la technique GVDB-Voxel, qui est maintenant à $300$ secondes, ce qui laisse présumer que la méthode FluidX3D, malgré son usage plus grand de la mémoire, est plus rapide que la méthode GVDB-Voxel.
-De plus, lorsque le nombre de particules a augmenté, le pourcentage de la mémoire GPU a diminué, ce qui est contre intuitif, c'est pourquoi des tests sur la mémoire GPU utilisé sont effectués dans la suite de l'étude.
+Cette différence est crutial et semble indiquer clairement quel code est le plus efficace.
 
-Un cas intéressant serait maintenant d'essayer d'avoir le code FluidX3D avec le même pourcentage d'utilisation de la mémoire GPU, ce qui a été effectué sur la figure [-@fig-2] par une division du domaine du fluide par 2.
-Cependant, comme il est possible de constater sur la figure, le code ne met que $3$ secondes environ à s'exécuter, ce qui signifie que pour une qualité équivalente, le code de FluidX3D met $10$ fois moins de temps à s'exécuter.
+Cependant, un grand nombre de données ont été fournies par les scripts d'évaluation de performance, c'est pourquoi une étude plus en détail va être effectuée.
 
-Mais il est possible de remarquer malgré un faible nombre de valeurs que l'utilisation de la mémoire GPU est toujours élevée car elle est d'environ $40$ pourcent.
+### Utilisation du CPU et de la RAM
+
+Les graphiques de la figure [-@fig-results] donnent de nombreuses informations intéressantes, notamment le pourcentage d'utilisation du CPU ou processeur et de la RAM ou mémoire vive.
+
+Une première constatation est alors que le code de GVDB-Voxel n'utilise pas du tout le CPU, à la différence de FluidX3D.
+Ainsi, le code de GVDB-Voxel s'exécute entièrement sur GPU ou carte graphique.
+
+Cependant, le code FluidX3D n'utilise que très peu le CPU car son utilisation est inférieur à 20 %.
+Il se sert du CPU surtout au début du lancement du code ou la valeur est plus élevée, comme la figure [-@fig-1] le montre.
+Donc le code de FluidX3D s'exécute presque entièrement sur GPU.
+
+Comme l'utilisation de la RAM est avoisinant les 1 % pour les deux codes, on peut considérer l'utilisation de celle-ci comme étant nulle.
+
+### Utilisation du GPU
+
+Afin de caractériser l'utilisation du GPU, 3 valeurs ont été retenues:
+
+- Le pourcentage de mémoire GPU utilisée par le processus
+- Le pourcentage de puissance de calcul du GPU utilisée par le processus 
+- Le pourcentage d'accès à la mémoire du GPU
+
+Comme mentionné précédemment, étant donné le nombre de données à stocker dans les deux codes, on s'attend à avoir le code de FluidX3D utilisant plus de mémoire GPU que le code de GVDB-Voxel.
+Cependant, il n'en est rien car les deux codes utilisent environ 8 % de la mémoire du GPU.
+
+De plus, les deux codes exploitent toute la puissance du GPU car ils sont tous les deux à 95 % d'utilisation de la puissance du GPU, comme semblent le montrer les graphiques de la figure [-@fig-results].
+
+Quant au pourcentage d'accès à la mémoire, le code de FluidX3D est à 50% alors que le code de GVDB-Voxel est à moins de 20%, comme les graphiques [-@fig-1] et [-@fig-g1] le représentent.
+
+Étant donné que la même quantité de mémoire est utilisée, une explication serait que FluidX3D solliciterait beaucoup plus la mémoire car, comme il calcule plus rapidement les prochaines étapes de la simulation, il a également plus rapidement besoin de récupérer les étapes, calculées précédemment, stockées en mémoire.
+Ainsi, si le code de GVDB-Voxel mettait le même temps d'exécution que le code de FluidX3D, les accès à la mémoire ne seraient pas répartis sur 30 secondes ce qui ferait un pourcentage d'accès à la mémoire plus élevé, bien que grâce à la technologie GVDB [-@sec-gvdb], il pourrait cependant avoir un pourcentage d'accès à la mémoire moins grand que FluidX3D.
+
+Comme le code de GVDB-Voxel possède un pourcentage d'accès à la mémoire moins grand que FluidX3D et un temps d'exécution 10 fois plus élevé que le temps d'exécution de FluidX3D, cela signifie que les étapes de calcul du comportement du fluide prennent plus de temps dans l'implémentation GVDB-Voxel de la méthode SPH comparé à l'implémentation FluidX3D de la méthode LBM.
+En effet, les accès à la mémoire sont l'élément le plus coûteux en temps lors de l'exécution d'un code.
+
+De plus, la figure [-@fig-raytracing] montre les performances obtenues pour le code de FluidX3D avec raytracing.
+Les performances observées sont identiques aux performances observées sans raytracing.
 
 ```{python}
-#| label: fig-2
-#| fig-cap: FluidX3D résolution 4000000
+#| label: fig-raytracing
+#| fig-cap: FluidX3D résolution 4000000 avec raytracing
 fluidx3d('domain_divide_by_2.csv')
 ```
-### Utilisation de la mémoire GPU
 
-Afin d'étudier l'utilisation de la mémoire GPU, un test a été fait en prenant $\frac{3}{2}$ du domaine [-@fig-3], puis en prenant $2$ fois le domaine [-@fig-4].
-Lors de la multiplication par $4$ du domaine, la simulation a été stoppée avant l'instant clé car elle allait prendre quelques heures.
-Cependant, cela suffit pour observer le pourcentage d'utilisation de la mémoire GPU.
-Il est aisément possible d'observer que le pourcentage d'utilisation de la mémoire GPU diminue en fonction de la résolution, ce qui est incompréhensible.
-
-En effet, pour une résolution de $32\cdot 10^6$, l'utilisation de la mémoire GPU est de 60 pourcent tandis que pour une résolution de $256 \cdot 10^6$, l'utilisation de la mémoire GPU est seulement de 10 pourcent.
-
-Une explication évidente serait que le pourcentage donné serait le pourcentage de mémoire non utilisée.
-
-```{python}
-#| label: fig-3
-#| fig-cap: FluidX3D résolution 108000000
-fluidx3d('domain_3_2.csv')
-```
-```{python}
-#| label: fig-4
-#| fig-cap: FluidX3D résolution 256000000
-#fluidx3d('domain_fois_4.csv')
-```
-
+Ainsi, le code de GVDB-Voxel semble moins bien optimisé que le code de FluidX3D qui donne des performances remarquables.
+Cela peut être dû grandement aux améliorations et à l'optimisation des technologies qui a seulement pu profiter au code de FluidX3D et non de GVDB-Voxel qui n'a pas été mis à jour depuis 2018, soit depuis 6 ans.
+La différence observée peut également être dûe au choix de la méthode, la méthode lbm étant peut-être objectivement plus rapide que la méthode sph, à l'implémentation qui dans le cas de FluidX3D reçoit régulièrement des mises à jour, des optimisations ou encore des ajouts de fonctionnalité tandis que dans le cas de GVDB-Voxel, aucune mise à jour n'est faite, ce qui peut signifier que soit le code est parfait, ce qui serait étonnant vu les difficultés rencontrées à l'initialisation de la méthode SPH et vu le peu de documentation expliquant les paramètres utilisés dans le code, soit le code est certe un bon code, mais pas forcément très optimisé ni sans erreurs.
