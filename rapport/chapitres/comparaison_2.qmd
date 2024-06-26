@@ -15,16 +15,16 @@ La stabilité numérique des deux méthodes SPH et LBM repose principalement sur
 La condition initiale joue un rôle crucial dans la comparaison des deux codes car l'objectif est de comparer les deux codes grâce à la modélisation du même phénomène physique.
 La première idée était de modéliser une goutte, en forme de cube car plus facile à définir, tombant dans un bassin d'eau, comme il est possible de voir sur la figure [-@fig-idee-1].
 
-![Idée initiale](../images/idee-1.png){#fig-idee-1}
+![Idée initiale](../images/idee-1.png){#fig-idee-1 width=60%}
 
 À cet exemple, le travail a montré que la définition d'un bac d'eau était presque impossible dans l'implémentation de la méthode SPH, car celle-ci possède des instabilités au niveau des bords du domaine, c'est pourquoi le fluide implosait ou s'éparpillait en volant dans tout le domaine, comme il est possible de voir sur la figure [-@fig-problem-1].
 En plus du phénomène d'implosion, le code s'arrêtait au bout d'un petit moment à cause d'accès illégaux à la mémoire.
 
 ::: {#fig-problem-1 layout-ncol=2}
 
-![Condition initiale](../images/problem-1-1.png)
+![Condition initiale](../images/problem-1-1.png){width=70%}
 
-![Implosion](../images/problem-1-2.png){width=86%}
+![Implosion](../images/problem-1-2.png){width=60%}
 
 Difficulté de définir un bac d'eau
 :::
@@ -32,10 +32,10 @@ Difficulté de définir un bac d'eau
 Face à ces difficultés, la solution finale a été de renoncer à cette comparaison qui aurait été idéale car elle aurait permis de faire varier la quantité d'eau dans le bac, permettant de voir à quel point le code avec domaine adaptatif était avantagé comparé à l'autre code qui aurait eu plus de peine à tourner pour un bac très rempli d'eau car il aurait dû calculer ce qui se passe au fond du bac, ce qui n'aurait pas été le cas du code avec domaine adaptatif.
 
 C'est pourquoi l'exemple choisi est un exemple fonctionnel modifié de la méthode SPH.
+Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait des vagues dans le bac, mais celle-ci a été supprimée afin de pouvoir avoir le même exemple dans les deux codes.
 
 Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-@fig-sequence].
 Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-@fig-sequence] est celle de FluidX3D.
-Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait des vagues dans le bac, mais celle-ci a été supprimée afin de pouvoir avoir le même exemple dans les deux codes.
 
 
 ::: {#fig-sequence layout-nrow=2}
@@ -52,7 +52,18 @@ Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait
 
 ![](../images/seq6.png)
 
-Séquence d'images de la simulation
+Séquence d'images de la simulation sans raytracing
+:::
+
+Le raytracing a été désactivé pour toutes les images de FluidX3D car le rendu dans le rapport ne permet pas de bien voir le fluide, comme le représente la figure [-@fig-compar].
+
+::: {#fig-compar layout-ncol=2}
+
+![](../images/seq15.png){width=70%}
+
+![](../images/seq5.png){width=70%}
+
+Comparaison de rendu avec et sans raytracing
 :::
 
 Comme le code GVDB est conçu pour modéliser des simulations à grande échelle comme l'océan par exemple et que le code de FluidX3D est plus dans le domaine du mètre, les deux exemples ne sont théoriquement pas identiques, c'est pourquoi les paramètres ont été définis afin que les deux codes donnent visuellement les mêmes résultats.
@@ -153,7 +164,58 @@ Cependant, il a fallut traduire le script bash en script powershell, ce qui s'es
 
 Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profil du rapport.
 
-Les résultats obtenus sont alors donnés sur les figures [-@fig-1] et [-@fig-g1].
+Les résultats obtenus sont alors donnés sur les figures [-@fig-g1], [-@fig-1] et [-@fig-raytracing].
+
+```{python}
+#| label: fig-g1
+#| fig-cap: GVDB Voxel 1500000 particules
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Lire les données du fichier CSV
+log_file = "../../../gvdb-voxels/logs"
+def gvdb(log_file: str = 'domain_normal.csv'):
+    df = pd.read_csv("../../../gvdb-voxels/logs/" + log_file)
+    
+    # Afficher les premières lignes pour vérifier le contenu
+    # print(df.head())
+    
+    # Convertir la colonne 'Timestamp' en datetime
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+    
+    # Calculer les secondes depuis le début
+    start_time = df["Timestamp"].iloc[0]
+    df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
+    
+    # Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
+    plt.figure(figsize=(14, 7))
+    plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
+    # plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
+    plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
+    plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Usage(%)"],
+        label="Utilisation Mémoire GPU (%)",
+    )
+    plt.plot(
+        df["Seconds_Since_Start"],
+        df["GPU_Memory_Access_Usage(%)"],
+        label="Accès à la Mémoire GPU (%)",
+    )
+    plt.xlabel("Temps (secondes)")
+    plt.ylabel("Utilisation (%)")
+    plt.title(
+    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU, des accès à la mémoire GPU et de la RAM"
+    )
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+gvdb()
+```
+
+
 
 ::: {#fig-results layout-nrow=2}
 
@@ -208,62 +270,23 @@ fluidx3d()
 ```
 
 ```{python}
-#| label: fig-g1
-#| fig-cap: GVDB Voxel 1500000 particules
-
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# Lire les données du fichier CSV
-log_file = "../../../gvdb-voxels/logs"
-def gvdb(log_file: str = 'domain_normal.csv'):
-    df = pd.read_csv("../../../gvdb-voxels/logs/" + log_file)
-    
-    # Afficher les premières lignes pour vérifier le contenu
-    # print(df.head())
-    
-    # Convertir la colonne 'Timestamp' en datetime
-    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
-    
-    # Calculer les secondes depuis le début
-    start_time = df["Timestamp"].iloc[0]
-    df["Seconds_Since_Start"] = (df["Timestamp"] - start_time).dt.total_seconds()
-    
-    # Tracer les graphiques de l'utilisation du CPU, de la mémoire et du GPU
-    plt.figure(figsize=(14, 7))
-    plt.plot(df["Seconds_Since_Start"], df["CPU_Usage(%)"], label="Utilisation CPU (%)")
-    # plt.plot(df["Seconds_Since_Start"], df["Memory_Usage(%)"], label="Utilisation Mémoire CPU (%)",)
-    plt.plot(df["Seconds_Since_Start"], df["RAM_Usage(%)"], label="Utilisation RAM (%)")
-    plt.plot(df["Seconds_Since_Start"], df["GPU_Usage(%)"], label="Utilisation GPU (%)")
-    plt.plot(
-        df["Seconds_Since_Start"],
-        df["GPU_Memory_Usage(%)"],
-        label="Utilisation Mémoire GPU (%)",
-    )
-    plt.plot(
-        df["Seconds_Since_Start"],
-        df["GPU_Memory_Access_Usage(%)"],
-        label="Accès à la Mémoire GPU (%)",
-    )
-    plt.xlabel("Temps (secondes)")
-    plt.ylabel("Utilisation (%)")
-    plt.title(
-    "Utilisation du CPU, de la Mémoire CPU, du GPU, de la Mémoire GPU, des accès à la mémoire GPU et de la RAM"
-    )
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-gvdb()
+#| label: fig-raytracing
+#| fig-cap: FluidX3D résolution 4000000 avec raytracing
+fluidx3d('usage_stats_raytracing.csv')
 ```
 
-Résultats obtenus pour GVDB-Voxel et FluidX3D
+Résultats obtenus pour FluidX3D
 ::: 
+
+\newpage
+
+## Interprétation des résultats
 
 Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent soudainement.
 Cela est causé par un signal d'arrêt envoyé au programme entre l'enregistrement de 2 mesures, donnant une valeur mauvaise car la mesure utilise le PID du processus en cours d'exécution, qui est détruit par le signal.
 
 La première observation qu'il est possible de faire sur les deux graphiques obtenus dans la figure [-@fig-results] est que le temps d'exécution des deux codes diffère d'un facteur $10$.
-En effet, le code de FluidX3D est exécuté en $\approx 3$ secondes alors que le code de GVDB-Voxel est exécuté en environ $\approx 30$ secondes.
+En effet, le code de FluidX3D est exécuté en approximativement $3$ secondes alors que le code de GVDB-Voxel est exécuté en environ $30$ secondes.
 
 Cette différence est crutial et semble indiquer clairement quel code est le plus efficace.
 
@@ -306,11 +329,6 @@ En effet, les accès à la mémoire sont l'élément le plus coûteux en temps l
 De plus, la figure [-@fig-raytracing] montre les performances obtenues pour le code de FluidX3D avec raytracing.
 Les performances observées sont identiques aux performances observées sans raytracing.
 
-```{python}
-#| label: fig-raytracing
-#| fig-cap: FluidX3D résolution 4000000 avec raytracing
-fluidx3d('domain_divide_by_2.csv')
-```
 
 Ainsi, le code de GVDB-Voxel semble moins bien optimisé que le code de FluidX3D qui donne des performances remarquables.
 Cela peut être dû grandement aux améliorations et à l'optimisation des technologies qui a seulement pu profiter au code de FluidX3D et non de GVDB-Voxel qui n'a pas été mis à jour depuis 2018, soit depuis 6 ans.
