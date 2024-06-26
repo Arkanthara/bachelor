@@ -21,9 +21,9 @@ Leur travail fut reconnu et utilisé sous le nom d'équations de Navier-Stokes [
 Jusqu'à aujourd'hui, personne n'a réussi à trouver une forme analytique aux équations de Navier-Stokes [-@sec-NSE], c'est pourquoi elles font toujours partie des 7 problèmes du prix du millénaire.
 
 Cependant, la technologie a fait de nombreux progrès surtout vers la fin du 20ème siècle avec l'apparition de l'ordinateur, ce qui permit aux scientifiques de tenter de résoudre les équations de Navier-Stokes [-@sec-NSE] grâce à des approximations et des méthodes numériques.
-Plusieurs méthodes ont donc été créées, notamment la méthode Smoothed Particle Hydrodynamics (SPH), la méthode Fluid-Implicit Particles (FLIP) et la méthode Lattice Boltzmann Method (LBM).
+Plusieurs méthodes ont donc été créées, notamment la méthode Smoothed Particle Hydrodynamics (SPH) et la méthode Lattice Boltzmann Method (LBM).
 Cependant, quelles sont les différences entre ces méthodes ?
-Y-a-t-il une méthode plus rapide qu'une autre ?
+Y-a-t-il une méthode dont l'implémentation est plus rapide que l'autre ?
 Serait-il possible d'utiliser ces méthodes afin d'obtenir un rendu en temps réel de haute qualité ?
 
 Nous allons commencer par expliquer la théorie de chacune de ces méthodes, puis nous allons nous pencher sur les différences les distinguant et sur les résultats concrets obtenus grâce au code de GVDB-Voxel et de FluidX3D.

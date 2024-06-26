@@ -77,3 +77,14 @@ L'implémentation FluidX3D est donc plus rapide et mieux optimisée que l'implé
 
 Cependant, nous pouvons nous demander s'il y a un moyen de faire mieux que l'implémentation de FluidX3D et si la technologie NeuralVDB en cours de développement de Nvidia pourrait permettre un gain de performances comparé à l'implémentation FluidX3D. Une étude sur ce sujet serait tout à fait intéressante.
 Et sur un autre plan, nous pourrions également nous intéresser à la visualisation en temps réel des simulations de fluides appliquée aux jeux vidéos en quête de réalisme.
+
+## Remerciements
+
+Je remercie tout particulièrement mon professeur encadrant Jonas Lätt qui m'a conseillé et guidé tout au long de cette belle découverte de l'univers de la simulation des fluides.
+Je remercie également ma mère qui a aidé à la relecture du projet, mon père qui m'a donné des conseils quant à la mécanique des fluides et à la rédaction d'un rapport, et toute ma famille pour leur patience et leur soutien.
+
+## Annexe
+
+- Vidéo présentant les résultats visuels des codes de FluidX3D et de GVDB-Voxel.
+- Code officiel de GVDB: https://github.com/NVIDIA/gvdb-voxels
+- Code officiel de FluidX3D: https://github.com/ProjectPhysX/FluidX3D

@@ -241,8 +241,7 @@ Cela est représenté dans la figure [-@fig-algo].
 
 ![prise dans le travail de Schiller et al. [-@algo]](../images/algo.png){#fig-algo}
 
-Pourquoi ça marche ?
+Notez que:
 
-- On a une "lattice symetry and isotropy"
 - La masse et la quantité de mouvement sont conservées car : $\sum_{i}\Omega_{i} = 0$ et $\sum_{i} c_{i}\Omega_{i} = 0$.
-- Les analyses de Champman-Enskog [-@Champman] et [-@Enskog] montrent que les LBE [-@sec-LBE] sont suffisantes pour retrouver le comportement de Navier-Stokes.
+- Les analyses de Chapman-Enskog [-@Chapman] et [-@Enskog] montrent que les LBE [-@sec-LBE] sont suffisantes pour retrouver le comportement de Navier-Stokes [-@sec-NSE].

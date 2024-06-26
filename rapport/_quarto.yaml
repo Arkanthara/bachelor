@@ -5,20 +5,16 @@ book:
   output-file: "Rapport"
   title: Comparaison entre méthodes de simulation de fluides
   author: Michel Jean Joseph Donnet
-  date: \today
+  date: last-modified
   chapters:
     - index.md
-    - part: "Méthodologie"
-      chapters:
-        - chapitres/mecanique_fluides.md
-        - chapitres/methode_sph.md
-        - chapitres/methode_lbm.qmd
-    - part: "Résultats"
-      chapters:
-        - chapitres/docker.qmd
-        - chapitres/comparaison_1.qmd
-        - chapitres/comparaison_2.qmd
-        - chapitres/conclusion.qmd
+    - chapitres/mecanique_fluides.md
+    - chapitres/methode_sph.md
+    - chapitres/methode_lbm.qmd
+    - chapitres/docker.qmd
+    - chapitres/comparaison_1.qmd
+    - chapitres/comparaison_2.qmd
+    - chapitres/conclusion.qmd
 
 bibliography: references.bib
 

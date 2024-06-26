@@ -1,16 +1,19 @@
 # La containerisation
 
-Dans ce rapport, beaucoup de théorie a déjà été faite sur différentes méthodes de simulation.
-Cela est dû en grande partie parce que je considère qu'il est important de savoir comment ça marche avant de comparer les méthodes, et parce que j'ai trouvé la méthodologie très intéressante.
+Dans ce rapport, beaucoup de théorie a déjà été faite sur différentes méthodes de simulation de fluides.
+Cela est dû en grande partie parce qu'il est important de savoir comment fonctionnent ces méthodes, d'autant plus que l'essort de l'intelligence artificielle met sur le plan secondaire l'implémentation du code.
 
-Je me permettrait d'utiliser un jargon informatique dans ce chapitre pour plus de clarté.
-En effet, un jour ma mère m'a demandé ce que j'avais fait, et je lui ai répondu "J'ai enlevé des insectes de ma poubelle" ce qui signifie en jargon informatique "j'ai enlevé des bugs dans mon container"
+Je me permettrai d'utiliser un jargon informatique dans ce chapitre pour plus de clarté.
+Pour la petite histoire, un jour ma mère m'a demandé ce que j'avais fait, et je lui ai répondu "J'ai enlevé des insectes de ma poubelle" ce qui signifie en jargon informatique "j'ai enlevé des bugs dans mon container"
 
-Dans ce chapitre, je vais un peu expliquer la containerisation car cela a fait grandement partie de mon projet de bachelor.
+Dans ce chapitre, la containerisation sera étudiée de plus près car elle a grandement fait partie de mon projet de bachelor.
 
-En effet, j'ai dû reprendre une application qui datait de 2017 et qui ne fonctionnait plus car elle n'était plus compatible avec les librairies actuelles et réussir à installer la version de 2017 des librairies est compliqué (je n'y suis pas parvenu).
+En effet, j'ai dû reprendre une application qui datait de 2017-2018 et qui ne fonctionnait plus car elle n'était plus compatible avec les librairies actuelles.
+Une tentative infructueuse a été faite pour installer les librairies datant de 2017-2018.
+Pour exécuter le code, il a donc fallu modifier celui-ci afin de le rendre compilable.
 
-C'est à cet instant que la containerisation prend toute son importance.
+Cependant, comment compiler le code sur plusieurs machines différentes n'ayant pas forcément les mêmes librairies installées ?
+C'est à cet instant que la containerisation a montré toute son utilité.
 
 ## Notions générales
 
@@ -20,22 +23,23 @@ Un système d'exploitation est composé d'un noyau ou kernel, d'outils systèmes
 
 Une machine virtuelle (VM) est une émulation d'un système informatique physique, créée par un logiciel de virtualisation. Elle permet d'exécuter un système d'exploitation complet et ses applications sur un matériel virtuel, indépendamment du matériel physique sous-jacent. Les machines virtuelles offrent une isolation forte, une grande flexibilité et sont largement utilisées dans diverses applications informatiques (ChatGPT).
 
-Les machines virtuelles sont gérées par un hyperviseur, comme il est possible de voir sur la figure [-@fig-vm], qui s'occupe alors notamment de l'isolation et de la gestion des ressources des machines virtuelles.
+Les machines virtuelles sont gérées par un hyperviseur, comme il est possible de le voir sur la figure [-@fig-vm], qui s'occupe alors notamment de l'isolation et de la gestion des ressources des machines virtuelles.
 
 Ainsi, il est possible de mettre une application sur une machine virtuelle car toutes ses dépendances pourront être installées sur le système d'exploitation du matériel virtuel.
-L'application pourra alors fonctionner sur n'importe quel matériel physique possédant un hyperviseur pour machine virtuelles.
+L'application pourra alors fonctionner sur n'importe quel matériel physique possédant un hyperviseur pour machines virtuelles.
 
 Cependant, un système d'exploitation occupe beaucoup de mémoire.
 Par exemple, Windows 10 occupe environ 20Go de mémoire.
-Donc est-ce nécessaire de déployer une machine virtuelle pour une application qui fait seulement 10Mo ? Ou alors c'est une perte de place ?
-Et est-ce que c'est vraiment utile d'avoir toutes les fonctionnalités du système d'exploitation pour déployer l'application, ou alors on peut se contenter de seulement quelques fonctionnalités ?
+Donc est-ce nécessaire de déployer une machine virtuelle pour une application qui fait seulement 10Mo ? Ou alors est-ce une perte de place ?
+Et est-ce vraiment utile d'avoir toutes les fonctionnalités du système d'exploitation pour déployer l'application, ou peut-on se contenter de seulement quelques fonctionnalités ?
 
-Les containers sont alors une solution à ce problème.
-En effet, un container ne virtualise non pas le matériel (comme le stockage ou la mémoire), mais un système d'exploitation, ce qui signifie qu'ils n'ont pas besoin d'avoir leur propre système d'exploitation, ce qui fait notamment un grand gain de stockage.
-Cela permet également de n'utiliser que les fonctionnalités du système d'exploitation qui sont nécessaire au bon fonctionnement du container.
+Les containers apportent une solution à ce problème.
+En effet, un container ne virtualise non pas le matériel, comme le stockage ou la mémoire, mais un système d'exploitation, ce qui signifie que le container n'a pas besoin d'avoir son propre système d'exploitation.
+C'est un grand gain de stockage.
+Cela permet également de n'utiliser que les fonctionnalités du système d'exploitation qui sont nécessaires au bon fonctionnement du container.
 Il en résulte que les containers ont un impact beaucoup plus faible sur les performances du matériel physique qu'une machine virtuelle.
-Le principe du container est simple: mettre dedans le code et toutes ses dépendances afin de pouvoir l'exécuter sur n'importe quel système.
-Les containers sont gérés par un démon, comme il est possible de voir sur la figure [-@fig-container].
+Le principe du container est simple : mettre dedans le code et toutes ses dépendances afin de pouvoir l'exécuter sur n'importe quel système.
+Les containers sont gérés par un démon, comme le montre la figure [-@fig-container].
 
 ::: {#fig-contvsvm layout-ncol=2}
 
@@ -50,19 +54,17 @@ Virtual Machine (VM) et container [-@Liam]
 
 Dans mon projet de bachelor, je me suis occupé de rendre fonctionnel un code qui n'a pas eu de maintenance depuis 2018 environ.
 
-J'ai donc dû comprendre ce qui ne fonctionnait pas et le rendre exécutable, ce qui fut résolu avec succès.
-Ici, si l'auteur du code avait créé un container, je n'aurais pas eu besoin de devoir mettre à jour le code, ce qui est beaucoup plus pratique.
+J'ai donc dû comprendre ce qui ne fonctionnait pas et le rendre exécutable, ce qui fut un défi résolu avec succès.
+Ici, si l'auteur du code avait créé un container, je n'aurais pas eu besoin de mettre à jour le code, ce qui aurait été beaucoup plus simple.
 
 À ce moment, je ne m'étais toujours pas penché sur la containerisation.
 
-Cependant, le projet avançant, je me suis heurté à des comportements spéciaux de mon code, et comme celui-ci utilise une carte graphique NVIDIA, je ne pouvais pas montrer à mon professeur encadrant mes problèmes afin d'avoir une piste de déblocage.
+Cependant, le projet avançant, je me suis heurté à des comportements spéciaux du code, et comme celui-ci utilise une carte graphique NVIDIA, je ne pouvais pas montrer à mon professeur encadrant mes problèmes afin de profiter pleinement de ses conseils.
 Mais mon professeur possède des serveurs distants équipés de cartes graphiques NVIDIA.
 
-On a donc essayé d'exécuter le code sur le serveur distant, mais on s'est heurté à des problèmes de librairies manquantes et d'autres problème.
+L'objectif était donc d'exécuter le code sur le serveur distant, mais des problèmes de librairies manquantes entre autres sont apparus.
 
-C'est alors que la containerisation a pris toute son importance dans mon projet de bachelor.
-
-En effet, l'objectif était alors de mettre le code dans un container qui s'exécutera sur le serveur distant du professeur afin de lui montrer mes problèmes et de pouvoir directement essayer des solutions.
+C'est alors que la containerisation a pris toute son importance.
 
 L'idée est d'exécuter un container et d'afficher le résultat graphique du container.
 
@@ -70,13 +72,14 @@ Pour cela, il faut comprendre les mécanismes régissant l'affichage X11.
 
 ## Affichage X11 {#sec-x11}
 
-L'affichage X11 est composé notamment de:
+L'affichage X11 est composé notamment de :
 
-- Un serveur Xorg ou X11 qui gère l'affichage et les périphériques d'entrée tel que la souris et le clavier.
-  Lors de son démarrage, le serveur X11 crée un socket permettant la communication inter-processus sans passer par le réseau qui va être à l'écoute des connections des applications clientes, et un fichier de stockage de "magic cookies", généralement appelé `.Xauthority`, afin d'identifier les clients souhaitant afficher quelque chose.
+- Un serveur Xorg ou X11 qui gère l'affichage et les périphériques d'entrée tels que la souris et le clavier.
+  Lors de son démarrage, le serveur X11 crée un socket permettant la communication inter-processus sans passer par le réseau et un fichier de stockage de "magic cookies", généralement appelé `.Xauthority`, afin d'identifier les clients souhaitant afficher quelque chose.
+  Le socket sera à l'écoute des connections des applications clientes, 
   Le chemin d'accès au fichier `.Xauthority` est mis dans la variable $XAUTHORITY.
   Lorsqu'une application voudra afficher quelque chose, elle se connectera au socket créé par le serveur et discutera avec celui-ci grâce au socket.
-- Des "magic cookies" qui sont des jetons d'authentifications permettant d'accéder au serveur X11.
+- De "magic cookies" qui sont des jetons d'authentification permettant d'accéder au serveur X11.
   Ils utilisent le hostname, le type de connection et le numéro d'affichage afin de composer un identifiant pour le jeton d'accès.
   Dans l'exemple de "magic cookies" suivant, lizzy est le hostname de mon ordinateur, combiné avec le type de connection qui est unix et le numéro d'affichage.
 
@@ -84,9 +87,9 @@ L'affichage X11 est composé notamment de:
 !xauth list | head -n 2
 ```
   Lorsque le client s'est connecté au socket, il doit s'authentifier auprès du serveur X11, ce qui est fait par l'extraction du "magic cookie" du fichier `.Xauthority` et par l'envoi de ce cookie au serveur.
-  Le serveur décide alors si le client a les permissions d'afficher ou pas.
+  Le serveur décide alors si le client a la permission d'afficher ou non.
 - Une variable d'environnement ´$DISPLAY´ utilisée afin d'indiquer à l'application cliente quel socket utiliser.
-La variable d'environnement est composée de la sorte: `hostname:numéro_d_affichage.numéro_du_serveur_X11`
+La variable d'environnement est composée de la sorte : `hostname:numéro_d_affichage.numéro_du_serveur_X11`
 
   - Le hostname indique le nom du host où se trouve le serveur X11.
   - Le numéro d'affichage indique où l'application devra être affichée.
@@ -99,17 +102,16 @@ La variable d'environnement est composée de la sorte: `hostname:numéro_d_affic
 
 ## Affichage d'un container sur ordinateur {#sec-aff-pc}
 
-On peut faire tourner toute sorte de code dans un container, notamment du code donnant un rendu visuel.
-La difficulté consiste alors à afficher le rendu visuel sur l'écran.
+Toute sorte de codes peuvent être exécutés dans un container, notamment du code donnant un rendu visuel.
+La difficulté consiste alors à afficher le rendu visuel sur l'écran, ce qui peut être résolu grâce à la section [-@sec-x11].
 
-Mais grâce à la section [-@sec-x11], nous savons comment fonctionne en gros le serveur X11 responsable de l'affichage à l'écran.
-
-Donc pour afficher le rendu visuel du code, il faut donner lors de l'exécution du container la variable d'environnement `$DISPLAY` pour que le container sache quel socket utiliser, il faut également partager le socket responsable de la connection avec le serveur et le fichier contenant les cookies d'authentification, ainsi que le même hostname que l'ordinateur sur lequel tourne le container afin que celui-ci puisse trouver le bon cookie à envoyer au serveur. Cela est illustré par la figure [-@fig-displaypc].
+Donc pour afficher le rendu visuel du code, il faut donner lors de l'exécution du container la variable d'environnement `$DISPLAY` pour que le container sache quel socket utiliser.
+Le socket responsable de la connection avec le serveur et le fichier contenant les cookies d'authentification doivent être partagés, ainsi que le même hostname que l'ordinateur sur lequel tourne le container afin que celui-ci puisse trouver le bon cookie à envoyer au serveur, ce qui est illustré par la figure [-@fig-displaypc].
 
 Il se peut toutefois que le fichier contenant les cookies n'existe pas.
 C'est pourquoi, il faut d'abord penser à le créer, puis à créer les cookies.
 
-Cela donne avec docker:
+Cela donne avec docker :
 
 ```bash
 # Vérifier que .Xauthority existe 
@@ -137,16 +139,16 @@ Le fait de pouvoir avoir le rendu visuel d'un container docker est une bonne cho
 
 Le container s'exécute alors sur un serveur distant.
 
-Une connection ssh avec l'option -X est alors établie afin d'afficher sur notre ordinateur le résultat.
+Une connection ssh avec l'option -X est alors établie afin d'afficher sur l'ordinateur le résultat graphique produit sur le serveur.
 
-Comme nous pouvons voir sur la figure [-@fig-displayserver], la connection ssh crée un socket TCP qui transfert par tunnel ssh la sortie visuelle de ce qui est exécuté sur la machine distante.
-Le soucis est qu'il n'est pas possible de partager ce socket à l'image docker à exécuter.
-C'est pourquoi, on utilise un socket unix que l'on redirige vers le socket tcp afin d'envoyer l'affichage dans le tunnel ssh, ce qui est fait au moyen le la commande `socat`.
+Comme le montre la figure [-@fig-displayserver], la connection ssh crée un socket TCP qui transfert par tunnel ssh la sortie visuelle de ce qui est exécuté sur la machine distante.
+Le souci est que le socket TCP n'est pas partageable au container à exécuter.
+C'est pourquoi, un socket unix redirigé vers le socket TCP est utilisé afin d'envoyer l'affichage dans le tunnel ssh, ce qui est fait au moyen le la commande `socat`.
 Notez ici que le socket TCP est identifié par la variable `$DISPLAY` qui est sous la forme `localhost:10` indiquant que le socket TCP écoute sur le port $6000 + 10 = 6010$ pour le transfert X11.
-Il faut ensuite redéfinir la variable `$DISPLAY` afin que celle-ci pointe bien sur le bon socket, c'est à dire le socket unix.
+Il faut ensuite bien définir la variable `$DISPLAY` du container afin que celle-ci pointe bien sur le bon socket, c'est à dire le socket unix.
 L'authentification du client suit exactement le même principe que pour l'affichage sur un ordinateur [-@sec-aff-pc].
 
-C'est pourquoi, il est possible d'écrire le script suivant:
+Ainsi il est possible d'écrire le script suivant :
 
 ```bash
 #!/bin/bash
@@ -177,35 +179,34 @@ docker run --gpus all --runtime nvidia \
   --hostname $(hostname) \
   mon-application
 ```
-## Conclusion
+## Limitations
 
-Cela a été fort intéressant, mais également très chronophage.
+Cette étape était très intéressante, mais également très chronophage.
 
-En effet, l'application ne marchait tout de même pas sur le serveur du professeur à cause d'une librairie utilisée (je crois la librairie OpenGL si je me souviens bien).
+En effet, l'application ne marchait tout de même pas sur le serveur du professeur à cause d'une librairie utilisée par le code, notamment la librairie OpenGL.
 
-J'ai donc testé d'utiliser mon ordinateur fixe, afin de voir si le problème persiste.
-Pour cela, j'ai dû installer et configurer le serveur ssh sur mon ordinateur afin d'avoir une connection si possible un peu sécurisée, mais j'ai également configuré mon routeur afin d'autoriser les connections depuis l'extérieur, ce qui s'est tout de même soldé par un échec.
-En effet, le problème observé sur l'ordinateur du professeur persistait.
-
-Mais comme le temps avance vite, je n'ai pas encore réussi à trouver une solution à ce problème.
+J'ai donc tenté d'utiliser mon ordinateur fixe, afin de voir si le problème persistait.
+Pour cela, une installation et une configuration d'un serveur ssh sécurisé sur mon ordinateur et une reconfiguration de mon routeur a été nécessaire afin d'autoriser les connections depuis l'extérieur.
+Malheureusement le problème de librairie était toujours présent et la solution au problème n'a pas encore été trouvée.
 
 ```{mermaid}
 %%| fig-cap: "Shéma de l'affichage d'une application graphique tournant dans un container sur un ordinateur"
 %%| label: fig-displaypc
 %%| fig-width: 6.5
-flowchart TD
+flowchart LR
 subgraph Ordinateur
     subgraph X[Container]
         subgraph A1[Serveur X11]
             S1[.X11-unix socket]
             C1[magic cookies]
+            D1[$DISPLAY]
+            E1[$XAUTHORITY]
         end
     end
     subgraph A[Serveur X11]
         H[hostname]
         S[.X11-unix socket]
         C[magic cookies]
-        D[$DISPLAY]
     end
 end
 E[Écran]
@@ -217,8 +218,9 @@ S ---|partagé| S1
 C --- |partagé|C1
 A --> |affichage|E
 H --> |donné à l'exécution|X
-D --> |donné à l'exécution|X
 H --> |autentification|C
+D1 --> S1
+E1 --> C1
 ```
 
 ```{mermaid}
@@ -236,6 +238,8 @@ subgraph Serveur
     subgraph X[Container]
         subgraph A1[Serveur X11]
             S1[.X11-unix socket]
+            D1[$DISPLAY]
+            E1[$XAUTHORITY]
             C1[magic cookies]
         end
     end
@@ -256,6 +260,8 @@ C --- |partagé|C1
 a --> |affichage|E
 H --> |donné à l'exécution|X
 H --> |autentification|C
+D1 --> S1
+E1 --> C1
 ```
 
 
