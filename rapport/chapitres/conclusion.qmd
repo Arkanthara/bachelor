@@ -30,9 +30,13 @@ Le résumé des comparaisons se trouve dans le tableau [-@tbl-result].
 | | | |
 |Scallable| Oui | Oui |
 | | | |
-|Maintenance|Il y a 6 ans|Régulièrement|
+|Maintenance|Il y a 6 ans|Régulière|
 | | | |
 |Implémentation| GVDB | FluidX3D |
+| | | |
+|Échelle | Grande | Petite |
+| | | |
+| Langage | C++ | C++ |
 | | | |
 |Technologie| CUDA et GVDB-Voxel | OpenCL |
 | | | |
@@ -56,4 +60,20 @@ Le résumé des comparaisons se trouve dans le tableau [-@tbl-result].
 
 ## Conclusion
 
-La comparaison a donné comme résultat que le code d
+Après avoir regardé le fonctionnement des méthodes LBM et SPH, une comparaison entre deux implémentations de ces deux méthodes a été effectuée.
+Étant donné la difficulté de définir les mêmes conditions physiques, seule une comparaison qualitative basée sur le redu visuel donné par les deux méthodes était envisageable.
+En effet, le code de GVDB-Voxel ne possédait que très peu de documentation et n'avait pas été maintenu depuis 2018.
+Afin d'évaluer les performances, des scripts bash et powershell ont été développés pour enregistrer différentes données dans un fichier csv et l'affichage de ces données a été effectué avec l'aide de `python`.
+
+La comparaison a alors donné comme résultat que le code de FluidX3D est plus rapide que le code de GVDB-Voxel d'un facteur 10.
+Cette différence est non négligeable et montre que l'approche consistant à utiliser la méthode LBM est plus rapide que l'approche employant la méthode SPH.
+Cependant, la différence est causée par les implémentations et non par les méthodes en elles-mêmes, dans le sens où, dans le cas de FluidX3D, le code est continuellement en développement, en amélioration et en optimisation alors que dans le cas de GVDB, le code n'est plus maintenu depuis 6 ans, ce qui le rend moins performant car il ne profite pas des optimisations des librairies qui ont été faites depuis.
+
+Du fait de sa capacité à être hautement parallélisable, notamment sur GPU, la méthode LBM suscite beaucoup d'intérêt de nos jours, ce qui peut se remarquer justement par l'implémentation et la maintenance active du code de FluidX3D.
+
+Le fait que le code de GVDB n'ait pas été maintenu indique cependant que la technologie GVDB de Nvidia semble actuellement délaissée.
+
+L'implémentation FluidX3D est donc plus rapide et mieux optimisée que l'implémentation GVDB-Voxel et pourrait être utilisée comme référence en terme de performances, étant donné les bons résultats obtenus.
+
+Cependant, nous pouvons nous demander s'il y a un moyen de faire mieux que l'implémentation de FluidX3D et si la technologie NeuralVDB en cours de développement de Nvidia pourrait permettre un gain de performances comparé à l'implémentation FluidX3D. Une étude sur ce sujet serait tout à fait intéressante.
+Et sur un autre plan, nous pourrions également nous intéresser à la visualisation en temps réel des simulations de fluides appliquée aux jeux vidéos en quête de réalisme.
