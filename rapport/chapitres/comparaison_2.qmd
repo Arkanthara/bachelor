@@ -33,9 +33,27 @@ Face à ces difficultés, la solution finale a été de renoncer à cette compar
 
 C'est pourquoi l'exemple choisi est un exemple fonctionnel modifié de la méthode SPH.
 
-Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-#fig-sequence] présente en annexe.
-Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-#fig-sequence] est tirée de FluidX3D.
+Il s'agit d'un cuboïd d'eau tombant dans un bac, comme il est possible de voir sur la séquence d'images [-@fig-sequence].
+Cet exemple a été reproduit dans les deux codes, c'est pourquoi la séquence d'images [-@fig-sequence] est celle de FluidX3D.
 Dans l'exemple original, il y avait ensuite une force fréquentielle qui créait des vagues dans le bac, mais celle-ci a été supprimée afin de pouvoir avoir le même exemple dans les deux codes.
+
+
+::: {#fig-sequence layout-nrow=2}
+
+![](../images/seq1.png)
+
+![](../images/seq2.png)
+
+![](../images/seq3.png)
+
+![](../images/seq4.png)
+
+![](../images/seq5.png)
+
+![](../images/seq6.png)
+
+Séquence d'images de la simulation
+:::
 
 Comme le code GVDB est conçu pour modéliser des simulations à grande échelle comme l'océan par exemple et que le code de FluidX3D est plus dans le domaine du mètre, les deux exemples ne sont théoriquement pas identiques, c'est pourquoi les paramètres ont été définis afin que les deux codes donnent visuellement les mêmes résultats.
 
@@ -43,46 +61,62 @@ Ainsi, ce ne sera pas une comparaison quantitative, mais qualitative qui sera fa
 
 Il est possible de voir sur la figure [-@fig-quality] 3 résolutions différentes pour FluidX3D et une résolution pour GVDB-Voxel.
 
+Pour chacune des résolutions de FluidX3D, le paramètre de tension de surface a été ajusté afin d'avoir un résultat qualitativement similaire à GVDB-Voxel.
+
+Afin de faciliter la prise de décision, un rendu très basique a été effectué sur FluidX3D en n'utilisant que de la rastérisation et non du raytracing. 
+
+Comme la figure [-@fig-quality] montre, la perspective n'est pas présente dans GVDB-Voxel, à la différence de FluidX3D.
+
+De plus, en comparant les résultats visuels de la figure [-@fig-problem-1] et de la figure [-@fig-quality], il apparaît que l'isosurface est calculée dans le cas de FluidX3D, mais pas dans le cas de GVDB-Voxel, l'isosurface étant ce qui permet de passer d'une représentation discrète du fluide comme un ensemble de particules à une représentation lisse.
+
 ::: {#fig-quality layout-nrow=2}
 
-![GVDB: 1500000 particules](../images/gvdb-voxel-key-1.png)
+![GVDB: 1500000 particules](../images/gvdb-voxel-key-1.png){width=85%}
 
-![FluidX3D: Résolution de 4000000](../images/domain_divide_by_2.png)
+![FluidX3D: Résolution de 4000000](../images/seq5.png)
 
-![FluidX3D: Résolution de 32000000](../images/domain_normal.png)
+![FluidX3D: Résolution de 32000000](../images/domain_normal_simple.png)
 
-![FluidX3D: Résolution de 108000000](../images/domain_3_2.png)
+![FluidX3D: Résolution de 108000000](../images/domain_3_2_simple.png)
 
 Comparaison des qualités
 :::
 
+Sur la figure [-@fig-quality], la résolution de FluidX3D semblant équivalente à la résolution de GVDB-Voxel est la résolution de $4 \cdot 10^6$.
 
-Pour la simulation sur FluidX3D, le domaine initial est de taille $400 \times 400 \times 200$, ce qui signifie que la résolution est donnée par $400 \cdot 400 \cdot 200 = 3,2 \cdot 10^{7}$
+En effet, les résolutions de $32 \cdot 10^6$ et $108 \cdot 10^6$ donnent plus de détails que GVDB-Voxel quant à la crête des vagues.
 
-Pour la simulation sur GVDB, le nombre initial de particules est de $1,5 \cdot 10^{6}$.
-La qualité de GVDB Voxel est donc moindre que celle de FluidX3D, comme il est possible de constater visuellement, notamment sur la figure [-@fig-key] ou il est possible de voir de nombreux détails de vagues chez FluidX3D tandis que chez GVDB Voxel, tout à l'air plat, lisse.
+Ainsi, ce sera la résolution de $4 \cdot 10^6$ qui sera utilisée afin de comparer les deux codes.
 
-Donc d'un côté, il y a $3.2 \cdot 10^7$ lattice à stocker, sachant que par lattice, comme le code est exécuté en $D3Q19$, cela signifie qu'il y a pour chaque lattice $19$ valeurs de vélocité à stocker. 
-Cela donne un total de $6\cdot 10^8$ données à stocker, ce qui est non négligeable.
-Et de l'autre côté, seulement les données de chacune des $1.5 \cdot 10^6$ particules sont à stocker.
+Les tailles des domaines ont été choisies afin d'obtenir un résultat similaire.
 
-Afin de mieux les comparer, des tests ont été effectués avec chez GVDB-Voxel le nombre de particules modifié et chez FluidX3D la taille du domaine modifié, ce qui est possible de voir dans la section [-@sec-comparaison].
+Dans le cas de GVDB-Voxel, le domaine est de taille $400 \times 400 \times 200$ tandis que dans le cas de FluidX3D, le domaine est de taille $200 \times 200 \times 100$.
 
+Ainsi, les deux domaines sont proportionnels, mais pas identique car la résolution de FluidX3D est contrôlée par la taille du domaine.
+
+Comme le code de GVDB-Voxel possède $1.5 \cdot 10^6$ particules, les propriétés de celles-ci telle que leur position, leur vitesse, leur masse etc doivent être stockées.
+
+À la différence, dans le code de FluidX3D, comme le domaine est de taille $200 \times 200 \times 100$, la résolution est de $200 \cdot 200 \cdot 100 = 4 \cdot 10^6$ donnant les informations de $4\cdot 10^6$ lattices à stocker.
+Le code de FluidX3D tourne en D3Q19 [-@sec-lbm], ce qui signifie que la discrétisation de la vélocité donne 19 valeurs à stocker.
+Donc pour chaque lattice, au moins 19 valeurs sont à stocker ne serait-ce que pour la vélocité.
+Ainsi, le code de FluidX3D devrait utiliser plus de mémoire que le code de GVDB-Voxel.
+
+Pour la comparaison des deux méthodes, comme le code de GVDB-Voxel utilise du raytracing natif CUDA s'apparentant à de la rastérisation, le code de FluidX3D a été évalué avec et sans raytracing.
 
 ### Moments clés
 
 Lors de la simulation, 2 moments clés ont été défini.
-Le premier moment clé est utilisé afin d'ajuster la viscosité pour avoir un résultat similaire et le deuxième moment clé indique la fin de la simulation, comme il est possible de voir sur la figure [-@fig-key].
+Le premier moment clé est utilisé afin d'ajuster la viscosité pour avoir un résultat similaire entre FluidX3D et GVDB-Voxel, et le deuxième moment clé indique la fin de la simulation, comme il est possible de voir sur la figure [-@fig-key].
 
 :::{#fig-key layout-ncol=2}
 
 ![](../images/gvdb-voxel-key-1.png)
 
-![](../images/case_2_key_1.PNG)
+![](../images/seq5.png)
 
 ![](../images/gvdb-voxel-key-2.png)
 
-![](../images/case_2_key_2.PNG)
+![](../images/seq6.png)
 
 Moments clés
 :::
@@ -101,8 +135,6 @@ Phénomène de compression dans GVDB
 
 Afin de résoudre le phénomène de compression, un jeu sur de nombreux paramètres du code de GVDB-Voxel, tel que sur la taille des particules, l'espacement, la densité, etc, a été effectué, mais sans succès.
 
-C'est pourquoi les deux exemples ne sont pas identiques, mais cependant très similaires.
-
 ## Exécution des codes {#sec-comparaison}
 
 Dans cette partie, l'objet d'étude sera l'exécution des deux codes.
@@ -111,15 +143,17 @@ Les deux codes donnent une visualisation en temps réelle, c'est à dire que le 
 
 Afin d'évaluer les performances des deux codes, un script bash a été créé afin de reporter l'utilisation du CPU, de la RAM, et du GPU dans un fichier `csv`.
 
-À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
+À cet instant du travail, un soucis s'est présenté car le code de FluidX3D ne fonctionne pas en visualisation temps réel sur le linux de nom ordinateur car des erreurs XrandR sont apparues lors de l'exécution du code, erreurs qui sont restées irrésolues faute de temps et de documentation sur la provenance de ces erreurs.
 Mes suppositions à l'heure actuelle sont que Nvidia utilise X11 avec Xinemara qui est une autre version de XrandR, rendant l'affichage incompatible avec mon ordinateur linux.
-La solution n'étant pas trouvée, l'enregistrement des performances s'est fait sous Windows pour le code de FluidX3D,
+La solution n'étant pas trouvée, l'enregistrement des performances a été effectué sous Windows pour le code de FluidX3D,
 ce qui ne devait pas être trop problématique étant donné que les données principales qui nous intéressent, à savoir l'utilisation du GPU, se prennent avec `nvidia-smi` sur linux et Windows.
 Cependant, il a fallut traduire le script bash en script powershell, ce qui s'est fait avec l'aide de ChatGPT et des discussions sur les forums et les blogs.
 
 Enfin, la visualisation des données a été faite à l'aide de python et de ChatGPT qui a donné le squelette du code, permettant d'économiser du temps de codage au profil du rapport.
 
 Les résultats obtenus sont alors donnés sur les figures [-@fig-1] et [-@fig-g1].
+
+::: {#fig-results layout-nrow=2}
 
 ```{python}
 #| label: fig-1
@@ -131,7 +165,7 @@ import pandas as pd
 # Lire les données du fichier CSV
 log_file = "../../../FluidX3D/logs/usage_stats_5.csv"
 
-def fluidx3d(log_file: str = 'domain_normal.csv'):
+def fluidx3d(log_file: str = 'domain_divide_by_2_simple.csv'):
     df = pd.read_csv("../../../FluidX3D/logs/" + log_file)
     
     # Afficher les premières lignes pour vérifier le contenu
@@ -170,6 +204,7 @@ def fluidx3d(log_file: str = 'domain_normal.csv'):
     plt.show()
 fluidx3d()
 ```
+
 ```{python}
 #| label: fig-g1
 #| fig-cap: GVDB Voxel 1500000 particules
@@ -219,22 +254,14 @@ def gvdb(log_file: str = 'domain_normal.csv'):
 gvdb()
 ```
 
-Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent d'un coup.
-Cela est causé par un signal d'arrêt envoyé au programme entre 2 mesures.
+Résultats obtenus pour GVDB-Voxel et FluidX3D
+::: 
+
+Il est possible d'observer à la fin du graphique de la figure [-@fig-1] que toutes les valeurs diminuent soudainement.
+Cela est causé par un signal d'arrêt envoyé au programme entre l'enregistrement de 2 mesures, donnant une valeur mauvaise car la mesure utilise le PID du processus en cours d'exécution, qui est détruit par le signal.
 De plus, au début de l'exécution du code, le CPU est légèrement solicité afin de tout mettre en place pour la simulation.
 
-Les résultats obtenus sont très similaire, le temps d'exécution étant différent d'un facteur largement inférieur à $10$, ce qui est donc négligeable.
 
-Cependant, il est possible de remarquer sur la figure [-@fig-1] de FluidX3D que le pourcentage d'utilisation de la mémoire GPU utilisée est plus grand que sur la figure [-@fig-g1] de GVDB-Voxel.
-Comme mentionné précédement, il y a une différence de qualité entre FluidX3D et GVDB-Voxel car FluidX3D possède une qualité plus élevée que GVDB-Voxel.
-
-Afin de pallier à cette différence de qualité, un doublement du nombre de particules a été fait sur GVDB-Voxel, donnant les performances du graphique [-@fig-g2].
-
-```{python}
-#| label: fig-g2
-#| fig-cap: GVDB Voxel 3000000 particules
-gvdb('2xparticules.csv')
-```
 Il en résulte une différence d'un facteur $10$ entre le temps d'exécution de la technique de FluidX3D, qui est seulement à $30$ secondes, et la technique GVDB-Voxel, qui est maintenant à $300$ secondes, ce qui laisse présumer que la méthode FluidX3D, malgré son usage plus grand de la mémoire, est plus rapide que la méthode GVDB-Voxel.
 De plus, lorsque le nombre de particules a augmenté, le pourcentage de la mémoire GPU a diminué, ce qui est contre intuitif, c'est pourquoi des tests sur la mémoire GPU utilisé sont effectués dans la suite de l'étude.
 
@@ -269,3 +296,4 @@ fluidx3d('domain_3_2.csv')
 #| fig-cap: FluidX3D résolution 256000000
 #fluidx3d('domain_fois_4.csv')
 ```
+
