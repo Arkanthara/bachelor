@@ -2,20 +2,20 @@
 
 ## Introduction
 
-Après avoir vu la théorie sur la méthode SPH [-@sec-methode-sph] et la méthode LBM [-@sec-methode-lbm], nous pouvons procéder à une comparaison entre deux codes implémentant chacun une des méthodes.
+Après avoir vu la théorie sur la méthode SPH [-@sec-methode-sph] et la méthode LBM [-@sec-methode-lbm], nous pouvons procéder à une comparaison entre deux codes implémentant chacun une de ces méthodes.
 
-- Le premier code est le code de GVDB-Voxel [](https://github.com/NVIDIA/gvdb-voxels) implémentant la méthode SPH
-- Le deuxième code est le code de FluidX3D [](https://github.com/ProjectPhysX/FluidX3D) implémentant la méthode LBM
+- Le premier code est le code de GVDB-Voxel [](https://github.com/NVIDIA/gvdb-voxels) implémentant la méthode SPH.
+- Le deuxième code est le code de FluidX3D [](https://github.com/ProjectPhysX/FluidX3D) implémentant la méthode LBM.
 
-Comme cela avait été mentionné précédement, le code de GVDB-Voxel n'a pas été maintenu depuis au moins 4 ans, ce qui a donné des problèmes d'incompatibilité entre les versions des librairies et le code, à la différence du code de FluidX3D qui est en cours de développement par le Dr Moritz Lehmann, dont le projet de master a servi à la compréhension de la méthode LBM.
+Comme cela avait été mentionné précédemment, le code de GVDB-Voxel n'a pas été maintenu depuis au moins 4 ans, ce qui a donné des problèmes d'incompatibilité entre les versions des librairies et le code, à la différence du code de FluidX3D qui est en cours de développement par le Dr Moritz Lehmann, dont le projet de master a servi à la compréhension de la méthode LBM.
 
-Les deux codes proposés présentent chacun des caractéristiques différentes, tant par la méthode utilisée pour simuler en temps réel des fluides que par les outils et technologies utilisées.
+Les deux codes proposés présentent chacun des caractéristiques différentes, tant par la méthode utilisée pour simuler des fluides en temps réel que par les outils et technologies utilisées.
 
 Dans la suite du travail, l'objectif sera de comparer ces deux codes.
 
 ## Comparaison théorique
 
-Le code de GVDB-Voxel implémente, comme mentionné précédement, la méthode SPH alors que le code de FluidX3D implémente la méthode LBM.
+Le code de GVDB-Voxel implémente, comme mentionné précédemment, la méthode SPH alors que le code de FluidX3D implémente la méthode LBM.
 
 Ces deux méthodes ont une façon totalement différente d'approcher le problème de la simulation de fluides.
 
@@ -25,28 +25,28 @@ La méthode SPH tente une approximation directe des équations de Navier-Stokes 
 Ce qui lui permet, à la différence de la méthode SPH, d'intégrer relativement facilement des effets thermiques grâce à l'utilisation des fonctions de distribution pour les énergies.
 
 En utilisant l'équation de Boltzmann [-@sec-BE], la méthode LBM possède un plus grand nombre de paramètres que les méthodes résolvant directement les équations de Navier-Stokes, car la vélocité de chaque groupe de particules ou population est prise en compte.
-Cependant, cela permet de ne pas avoir à résoudre directement les équations de Navier-Stokes, ce qui en fait une méthode rapide car aucune équation de poisson n'est à résoudre,
+De plus, cela permet de ne pas avoir à résoudre directement les équations de Navier-Stokes, ce qui en fait une méthode rapide car aucune équation de poisson n'est à résoudre,
 et cela permet également de simuler des fluides à micro-échelle où les interactions moléculaires sont significatives.
 
 ### Maillage
 
 La méthode SPH est une méthode sans maillage alors que la méthode LBM est composée d'un maillage.
 Cela permet à la méthode SPH de définir un domaine adaptatif qui varie en fonction des besoins de la simulation à la différence de la méthode LBM qui possède un domaine fixe.
-Un autre avantage conféré à la méthode SPH par cet absence de maillage est une facilité d'adaptation à des changements topologiques comme la fragmentation ou la fusion de fluides, et une simplicité de définition des conditions aux frontières, bien que cela reste toujours très complexe afin d'obtenir de bons résultats.
-Cependant, la méthode LBM est également capable de gérer des frontières complexes, comme des frontières en mouvement ou des géométries complexes grâce à sa localité qui lui permet également une flexibilité sur la définition des conditions aux limites.
+Un autre avantage conféré à la méthode SPH par cet absence de maillage est une facilité d'adaptation à des changements topologiques comme la fragmentation ou la fusion de fluides, et une simplicité de définition des conditions aux frontières, bien qu'il soit toujours très complexe d'obtenir de bons résultats.
+Cependant, la méthode LBM est également capable de gérer des frontières complexes, comme des frontières en mouvement ou des géométries complexes grâce à sa localité qui lui confère une flexibilité sur la définition des conditions aux limites.
 
-Mais la méthode SPH possède plus de difficultés à traiter des conditions aux limites solides car cela peut nécessiter des techniques spéciales afin de modéliser l'interaction entre le fluide et la surface solide, ce qui n'est pas très complexe dans le cas d'une méthode avec un maillage.
+Mais la méthode SPH a plus de difficultés à traiter des conditions aux limites solides car cela peut nécessiter des techniques spéciales afin de modéliser l'interaction entre le fluide et la surface solide, ce qui est beaucoup plus simple dans le cas d'une méthode avec un maillage.
 
 Il résulte néanmoins du fait que la méthode LBM soit une méthode avec maillage que la précision est dépendante du maillage choisi, bien qu'il existe des méthodes de raffinement de maillage ou de grille adaptative afin de palier à ce problème.
 
 ### Phénomènes physiques
 
-La méthode LBM perd en efficacité dans les simulations d'écoulements à haute vitesse ou d'écoulements compressibles, car des corrections doivent être faites afin de prendre en compte les écoulements haute vitesse, ce qui complexifie l'implémentation.
-Mais la méthode SPH n'est également pas très efficace dans les simulations d'écoulements à haute vitesse, car cela requiert un nombre plus élevé de particules, et donc de temps de calcul, de mémoire...
-Cependant la méthode SPH est très efficace pour simuler des phénomènes avec des variations rapides de densité et de pression, comme des explosions ou des fluides compressibles.
+La méthode LBM perd en efficacité dans les simulations d'écoulements à haute vitesse ou d'écoulements compressibles, car des corrections doivent être effectuées ce qui complexifie l'implémentation.
+Mais la méthode SPH n'est également pas très efficace dans les simulations d'écoulements à haute vitesse, car cela requiert un nombre plus élevé de particules, et donc de temps de calcul, de mémoire, etc...
+Par contre la méthode SPH est très efficace pour simuler des phénomènes avec des variations rapides de densité et de pression, comme des explosions ou des fluides compressibles.
 
-Comme vu précédement, la méthode SPH est également utilisée pour la simulation d'explosions, de fragmentation de matériaux, d'impact haute vitesse...
-La méthode LBM ne permet pas de faire cela, cependant, elle possède des applications multi-physiques tel que les écoulements multiphasiques comme les interactions entre fluides immiscibles, les interactions entre fluide et structure déformable ou rigide, les transfert de chaleur, les réactions chimiques et la combustion dans les fluides, les écoulements à petite échelle...
+Comme vu précédemment, la méthode SPH est également utilisée pour la simulation d'explosions, de fragmentation de matériaux, d'impact à haute vitesse, etc...
+La méthode LBM ne permet pas de faire cela, cependant, elle possède des applications multi-physiques telles que les écoulements multiphasiques comme les interactions entre fluides immiscibles, les interactions entre fluide et structure déformable ou rigide, les transferts de chaleur, les réactions chimiques et la combustion dans les fluides, les écoulements à petite échelle, etc...
 
 À la différence de la méthode SPH, la méthode LBM permet également de simuler des fluides non newtoniens.
 
@@ -56,28 +56,29 @@ La méthode LBM ne permet pas de faire cela, cependant, elle possède des applic
 
 #### Calcul parallèle
 
-La méthode LBM, comme vu dans la section [-@sec-lbm-algo], permet de facilement séparer les étapes permettant de calculer le comportement du fluide.
+La méthode LBM, comme vu dans la section [-@sec-lbm-algo], permet de facilement séparer les étapes pour calculer le comportement du fluide.
 
-En effet, la méthode LBM est locale et les calculs de propagation et de collision peuvent être fait localement, indépendemment, sur chaque partie du maillage.
+En effet, la méthode LBM est locale et les calculs de propagation et de collision peuvent être faits localement, indépendemment, sur chaque partie du maillage.
 
-Ainsi, il en résulte que la méthode LBM est particulièrement adaptée au calcul parallèle et hautement scalable car lorsque la puissance de calcul augmente, l'overhead, qui est une mesure de la puissance de calcul inutilisée, reste à peu près constant.
+Il en résulte que la méthode LBM est particulièrement adaptée au calcul parallèle et hautement scalable car lorsque la puissance de calcul augmente, l'overhead, qui est une mesure de la puissance de calcul inutilisée, reste à peu près constant.
 
-La caractéristique d'être hautement parallélisable et scallable rend cette méthode très attractive de nos jours.
+Le fait que cette méthode soit hautement parallélisable et scallable la rend très attractive de nos jours.
 
 La méthode SPH est également adaptée au calcul parallèle.
 
 En effet, la méthode SPH représente le fluide comme un ensemble de particules qui interagissent entre elles.
-Cependant elles n'interagissent pas avec toutes les particules mais seulement avec des particules dans un certain rayon défini lors de l'initialisation de la simulation, comme l'image [-@fig-W] peut illustrer.
-Ainsi, grâce à la localité des interactions entre particules, il est possible de diviser le calcul entre de nombreuses unités de calculs, ce qui signifie que la méthode SPH est également adaptée au calcul parallèle et est également scallable.
+Cependant elles n'interagissent pas avec toutes les particules mais seulement avec des particules dans un certain rayon défini lors de l'initialisation de la simulation, comme l'illustre l'image [-@fig-W].
+Ainsi, grâce à la localité des interactions entre particules, il est possible de diviser le calcul entre de nombreuses unités de calculs, ce qui signifie que la méthode SPH est également adaptée au calcul parallèle et qu'elle aussi est scallable.
 
 #### Utilisation de la mémoire
 
-L'utilisation de la mémoire est un aspect crutial dans les deux méthodes.
+L'utilisation de la mémoire est un aspect crucial dans les deux méthodes.
 
-En effet, la méthode SPH doit stocker un grand nombre de particules possédant chacune des caractéristiques telle que sa position, sa vitesse et la méthode LBM doit stocker pour chaque noeud du maillage plusieurs distributions de vitesse.
+La méthode SPH doit stocker un grand nombre de particules possédant chacune des caractéristiques telles que sa position et sa vitesse.
+La méthode LBM doit stocker pour chaque noeud du maillage plusieurs distributions de vitesse.
 
 Ainsi, l'aspect de l'utilisation de mémoire est un défi dans les deux méthodes et doit être optimisé afin d'obtenir des codes efficaces.
-Effectivement, si l'utilisation de la mémoire n'est pas obtimisé, il est possible que des simulations à haute résolution dépassent la capacidé de mémoire de la machine sur laquelle elle s'exécute.
+Effectivement, si l'utilisation de la mémoire n'est pas obtimisée, il est possible que des simulations à haute résolution dépassent la capacité de mémoire de la machine sur laquelle elles s'exécutent.
 
 Mais pour les deux codes proposés, l'utilisation de la mémoire est correctement gérée.
 
@@ -86,14 +87,14 @@ Mais pour les deux codes proposés, l'utilisation de la mémoire est correctemen
 Les deux implémentations des méthodes LBM et SPH sont basées sur du C++, mais elles diffèrent quant à l'utilisation des technologies.
 
 La méthode LBM utilise la librairie OpenCL alors que la méthode SPH utilise la librairie CUDA de Nvidia.
-Cependant, d'après le travail [-@OpenCL] du Dr Moritz Lehmann, les deux librairies sont aussi rapides sur GPU Nvidia si OpenCL est correctement utilisé.
+Cependant, d'après le travail [-@OpenCL] du Dr Moritz Lehmann, les deux librairies sont aussi rapides l'une que l'autre sur GPU Nvidia, si OpenCL est correctement utilisé.
 
 Cela signifie donc que FluidX3D possède l'avantage, comparé au code de GVDB-Voxel, de pouvoir tourner sur tous les GPUs, et d'être aussi rapide sur GPU Nvidia que s'il avait été implémenté en CUDA.
 
 Donc de ce côté, il y a des différences, mais les deux technologies s'équivalent.
 
 La méthode SPH est implémentée au moyen de la technologie Nvidia GVDB-Voxel.
-Elle utilisait OptiX pour le raytracing, qui a été supprimé en faveur du raytracing intégré de CUDA en raison de la difficulté de trouver la bonne librairie afin de faire tourner le code.
+Elle utilisait OptiX pour le raytracing, qui a été supprimé en faveur du raytracing intégré de CUDA en raison de la difficulté à trouver la bonne librairie pour faire tourner le code.
 
 #### GVDB-Voxel
 
@@ -109,49 +110,50 @@ Pour cela, la technologie est basée sur une structure de grille hiérarchique.
 ##### Grille hiérarchique
 
 La structure de la grille hiérarchique est donnée à l'initialisation du programme.
-Elle déterminera le nombre de voxels total qui pourra être utilisé.
+Elle déterminera le nombre total de voxels qui pourra être utilisé.
 
-La grille est composée de:
+La grille est composée de :
 
-- voxels: ce sont les plus petites unités de données volumétriques.
+- voxels : ce sont les plus petites unités de données volumétriques.
 Cela correspond à un pixel, mais en 3 dimensions.
-- bricks ou blocs: ce sont des collections de voxels. On les appelle bricks ou blocs car ce sont des petit cubes de voxels, généralement de taille fixe.
+- bricks ou blocs : ce sont des collections de voxels. On les appelle bricks ou blocs car ce sont des petit cubes de voxels, généralement de taille fixe.
 Les bricks rendent l'accès plus facile et plus rapide aux voxels, ce qui permet une meilleure gestion des données.
-- Nodes ou noeuds: ce sont des pointeurs vers d'autres noeuds ou vers des bricks.
-Ils sont utilisés afin de pouvoir organiser les bricks d'une manière hiérarchique.
-Il peut y avoir plusieurs niveau de noeuds, ce qui permet de diviser l'espace volumétrique en régions aussi petites que l'on souhaite.
+- Nodes ou noeuds : ce sont des pointeurs vers d'autres noeuds ou vers des bricks.
+Ils sont utilisés afin d'organiser les bricks d'une manière hiérarchique.
+Il peut y avoir plusieurs niveaux de noeuds, ce qui permet de diviser l'espace volumétrique en régions aussi petites que l'on souhaite.
 
 Ces composants sont illustrés dans la figure [-@fig-composants] pris de la documentation de GVDB-Voxel [-@GVDB] avec en bleu les voxels, en vert les bricks et en rouge les nodes.
 
 ![Grille hiérarchique [-@GVDB]](../images/composants.png){#fig-composants width=75%}
 
-L'implémentation concrête de cette hiérarchie peut se faire en liste de noeuds possédant une liste d'enfants qui pointent soit vers des bricks, soit vers d'autres noeuds, et ainsi de suite, comme le montre la figure [-@fig-hierarchie].
+L'implémentation concrète de cette hiérarchie peut se faire en liste de noeuds possédant une liste d'enfants qui pointent soit vers des bricks, soit vers d'autres noeuds, et ainsi de suite, comme le montre la figure [-@fig-hierarchie].
 
-L'objectif est maintenant de stocker toutes ces données d'une manière efficace dans la mémoire du gpu afin d'avoir des accès rapides aux données, ce qui est crucial lorsque l'on souhaite obtenir des performances car les accès à la mémoire sont très coûteux.
+L'objectif est maintenant de stocker toutes ces données d'une manière efficace dans la mémoire du gpu afin d'avoir des accès rapides aux données, ce qui est crucial lorsque l'on souhaite obtenir des performances optimales car les accès à la mémoire sont très coûteux.
 
 Pour ce faire, la technologie GVDB-Voxel utilise des atlas, qui sont des structures de données créées afin d'optimiser le stockage et l'accès aux bricks.
 
 Un atlas est donc composé de bricks qui sont dynamiquement allouées lors de l'exécution.
-Il possède une taille maximale déterminée à la compilation et un type de donnée qu'il peut stocker.
+Il possède une taille maximale déterminée à la compilation et un type de données qu'il peut stocker.
 Les bricks sont indexés en fonction de leurs coordonnées dans l'espace, ce qui permet un accès direct et rapide aux données.
 Par exemple, si un voxel possédant des coordonnées données est recherché, il est possible de trouver directement l'index de l'atlas dans lequel le voxel se trouve grâce à un masque.
 
-Comme le montre la figure [-@fig-atlas-3], un atlas stocke les bricks d'une manière contigüe en mémoire, ce qui rend les données facilement gérables et accessibles et les transferts de donnée plus facile et rapide, par exemple entre le CPU et le GPU lors de calculs.
+Comme le montre la figure [-@fig-atlas-3], un atlas stocke les bricks en mémoire d'une manière contigüe, ce qui rend les données facilement gérables et accessibles et les transferts de données plus faciles et rapides, par exemple entre le CPU et le GPU lors de calculs.
 
 De plus, lorsque des bricks sont désallouées, l'atlas peut directement réutiliser l'espace laissé vide pour d'autres bricks, ce qui optimise la quantité de mémoire utilisée.
 
-Comme le montre la figure [-@fig-atlas], l'atlas ne stocke pas seulement les bricks, mais également les apron voxels qui sont les voxels voisins de la bricks stockée afin d'éviter les communications entre les unités computationnelles lors d'un calcul parallèle nécessitant des calculs de voisinage, car les données dont ils ont besoin se trouvent dans les apron voxels.
+Comme le montre la figure [-@fig-atlas], l'atlas ne stocke pas seulement les bricks, mais également les apron voxels qui sont les voxels voisins de la brick stockée afin d'éviter les communications entre les unités computationnelles lors d'un calcul parallèle nécessitant des calculs de voisinage, car les données dont ils ont besoin se trouvent dans les apron voxels.
 
 ![Atlas et stockage des bricks [-@GVDB]](../images/atlas.png){#fig-atlas width=70%}
 
-Ainsi, peu de communications entre les unités de calculs sont nécessaires, mais peu de données sont stockées, à la différence des données volumétriques denses qui permettent un calcul rapide avec accès facile aux voisins d'un voxel, mais qui n'optimisent pas du tout la quantité de mémoire utilisée, comme le montre la figure [-@fig-atlas-mem].
+Ainsi, peu de communications entre les unités de calcul sont nécessaires, mais peu de données sont stockées, à la différence des données volumétriques denses qui permettent un calcul rapide avec accès facile aux voisins d'un voxel, mais qui n'optimisent pas du tout la quantité de mémoire utilisée, comme le montre la figure [-@fig-atlas-mem].
 
 ![Différence entre donnée volumétrique éparse et dense lors d'un calcul [-@GVDB]](../images/atlas-mem.png){#fig-atlas-mem width=40%}
 
-Les atlas peuvent être utilisés pour stocker différentes informations, telle que les couleurs ou la densité, comme la figure [-@fig-atlas-2] le montre.
+Les atlas peuvent être utilisés pour stocker différentes informations, telles que les couleurs ou la densité, comme le montre la figure [-@fig-atlas-2].
 
 Ainsi, l'accès aux informations est rapide et facile.
-Par exemple, si un besoin de connaître la densité de telle région du volume se présente, il suffit de chercher dans l'atlas correspondant au canal densité à l'index donné par les coordonnées de la région étudiée appliqué à un masque car toute la coordonnée n'est pas nécessaire pour localiser la bricks, sinon il n'y aurait aucune utilité à créer des bricks qui sont des groupes de voxels.
+Par exemple, si un besoin de connaître la densité de telle région du volume se présente, il suffit de chercher dans l'atlas correspondant au canal densité, l'index obtenu par l'application d'un masque sur les coordonnées de la région donnée.
+Toute la coordonnée n'est effectivement pas nécessaire pour localiser la brick, sinon il n'y aurait aucune utilité à regrouper les voxels en bricks.
 
 En résumé, un atlas est un espace de stockage de bricks gérant efficacement la mémoire, facilitant l'accès aux données et permettant d'éviter des communications entre les unités computationnelles lors de calculs nécessitant les informations de voisinage.
 
